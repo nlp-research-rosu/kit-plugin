@@ -1,0 +1,19 @@
+{
+  "name": "kit",
+  "version": "0.1.0",
+  "description": "Verify programs in K and independently validate proof soundness, scope, and trust.",
+  "author": {
+    "name": "Grigore Rosu and the Formal Verification Kit contributors"
+  },
+  "license": "MIT",
+  "keywords": [
+    "k-framework",
+    "formal-verification",
+    "kprove",
+    "program-verification",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "homepage": "https://github.com/nlp-research-rosu/kit-plugin",
+  "repository": "https://github.com/nlp-research-rosu/kit-plugin"
+}

@@ -1,0 +1,37 @@
+{
+  "name": "kit",
+  "version": "0.1.0",
+  "description": "Verify programs in K and independently validate proof soundness, scope, and trust.",
+  "author": {
+    "name": "Grigore Rosu and the Formal Verification Kit contributors",
+    "url": "https://github.com/nlp-research-rosu"
+  },
+  "homepage": "https://github.com/nlp-research-rosu/kit-plugin",
+  "repository": "https://github.com/nlp-research-rosu/kit-plugin",
+  "license": "MIT",
+  "keywords": [
+    "k-framework",
+    "formal-verification",
+    "kprove",
+    "program-verification",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "KIT",
+    "shortDescription": "Prove and validate partial correctness with K.",
+    "longDescription": "KIT installs verification skills and guides setup of a shared global KProver CLI, then writes and proves reachability claims through Prover and independently audits the result.",
+    "developerName": "Grigore Rosu and the Formal Verification Kit contributors",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/nlp-research-rosu/kit-plugin",
+    "defaultPrompt": [
+      "Use kit to verify this program with the K framework.",
+      "Use a bundled language semantics to write a K reachability specification for this code.",
+      "Audit this passing K proof for soundness, adequacy, non-vacuity, and trust."
+    ]
+  }
+}

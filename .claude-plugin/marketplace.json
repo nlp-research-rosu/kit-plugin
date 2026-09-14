@@ -1,0 +1,17 @@
+{
+  "name": "kit-plugin",
+  "metadata": {
+    "description": "K-based program-verification skills with independent proof-soundness validation."
+  },
+  "owner": {
+    "name": "Grigore Rosu and the Formal Verification Kit contributors"
+  },
+  "plugins": [
+    {
+      "name": "kit",
+      "source": "./plugins/kit",
+      "version": "0.1.0",
+      "description": "K reachability proofs through a global KProver CLI with independent per-stage audits."
+    }
+  ]
+}

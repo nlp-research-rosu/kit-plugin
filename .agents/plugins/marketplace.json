@@ -1,0 +1,20 @@
+{
+  "name": "kit-plugin",
+  "interface": {
+    "displayName": "KIT"
+  },
+  "plugins": [
+    {
+      "name": "kit",
+      "source": {
+        "source": "local",
+        "path": "./plugins/kit"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
