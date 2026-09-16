@@ -1,11 +1,8 @@
 # KIT
 
-KIT is a Codex and Claude Code plugin for writing K specifications, proving
-them with Prover, and independently auditing the results. This repository
-distributes the plugin and the `kprover` CLI binaries.
-
-The first release, `v0.1.0`, is being prepared. The installation commands below
-will become available when it is published.
+KIT is a plugin for writing K specifications, proving them with Prover, and
+independently auditing the results. This repository distributes the plugin
+and the `kprover` CLI binaries.
 
 ## Install the plugin
 
@@ -85,6 +82,3 @@ claude plugin update kit@kit-plugin
 
 Run the latest release's installer to update the CLI, then start a new agent
 session. Plugin and CLI versions are released together.
-
-Binaries for macOS, Linux and Windows, on x64 and ARM64, will be available in
-[GitHub Releases](https://github.com/nlp-research-rosu/kit-plugin/releases).
