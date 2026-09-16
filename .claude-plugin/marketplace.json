@@ -10,7 +10,7 @@
     {
       "name": "kit",
       "source": "./plugins/kit",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "K reachability proofs through a global KProver CLI with independent per-stage audits."
     }
   ]

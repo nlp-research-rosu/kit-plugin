@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-base=https://github.com/nlp-research-rosu/kit-plugin/releases/download/v0.1.0
+base=https://github.com/nlp-research-rosu/kit-plugin/releases/download/v0.1.1
 case "$(uname -s)-$(uname -m)" in
   Darwin-arm64) asset=kprover-darwin-arm64.tar.gz ;;
   Darwin-x86_64) asset=kprover-darwin-x64.tar.gz ;;

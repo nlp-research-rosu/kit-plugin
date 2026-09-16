@@ -23,6 +23,9 @@ Also confirm that concrete program identifiers used by the claims parse as
 identifiers rather than K rule variables. See
 [K syntax and operational semantics](../shared/k-syntax.md#grammar).
 
+For EVM targets, read [EVM specification patterns](../shared/evm-spec-patterns.md)
+before drafting or repairing the claims.
+
 ---
 
 ## What a spec is

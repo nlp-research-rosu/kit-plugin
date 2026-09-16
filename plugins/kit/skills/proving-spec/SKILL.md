@@ -18,6 +18,9 @@ the proof closes.
 
 Use `writing-spec` before this skill if `spec.k` is not yet written.
 
+For EVM targets, read [EVM specification patterns](../shared/evm-spec-patterns.md)
+before drafting or repairing the claims.
+
 ---
 
 ## Why proofs get stuck
