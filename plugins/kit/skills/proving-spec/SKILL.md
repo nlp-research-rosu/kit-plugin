@@ -209,9 +209,17 @@ Choose a time cap before submitting proof tasks; use `kprover config --help`
 for settings and cancellation behavior.
 The cap matters because the failure modes that matter — a circularity
 that fails to re-match, a symbolic helper that keeps unfolding — do not
-terminate on their own, and a running task gives no signal of either.
+terminate on their own. Elapsed time alone does not identify either mode.
 
-Use the configured timeout. A cap bounds how
+`kprover prove` automatically polls Prover at the configured interval
+while it runs and replaces the current `proof-NNN/result.json` with each
+task response. Keep the command in a live shell session and read that
+file to inspect `task.metrics` before completion when Prover supplies
+them; the agent does not need to poll Prover separately. A snapshot may
+remain unchanged during long backend work, so metrics do not establish
+that a task is healthy.
+
+Use the chosen `--task-timeout` or the configured default. A cap bounds how
 long you will wait on a task that may never return: the prover cannot
 tell you it is hung, so pick a time beyond which stuck is a better
 explanation than slow. A cap confines the run's cost; it does not grade
