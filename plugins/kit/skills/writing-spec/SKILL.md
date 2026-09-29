@@ -119,20 +119,19 @@ kit therefore has exactly two claims; a program with two loops needs three, and
 a nested loop needs its own invariant claim, which the outer loop's proof then
 uses to step over the inner loop.
 
-This works because all claims of a spec module are proved **together in one
-`kprove` invocation**: after one rewrite step each claim is available as a
-circularity to every claim's proof, so each loop claim applies to its own
-back edge and the outer claims compose the inner ones. The prover does
-not carry proven claims across invocations by itself; explicit trust can
-re-import one as a recorded assumption
-([running-k.md](../shared/running-k.md#proof-submission)). So keep
-interdependent claims in one module — or trust across runs explicitly —
-and never restate a proven claim as an installed rewrite rule to make
-it "available": an installed operational rule stands outside the proof,
-and if it is not
-independently justified it smuggles the conclusion in as an axiom (the
-[soundness contract](../shared/proof-extension-soundness.md) classifies
-exactly this).
+Give every claim a stable label (`claim [name]:`). PyK APR uses a claim as its
+own circularity only when it has `[circularity]`; a claim uses another claim
+only when it names that label in `[depends(...)]`. The entry claim depends on
+its loop invariant. An outer loop invariant that uses an inner one needs both
+attributes.
+
+A claim selected with `--trusted` is not proved. Name it in each caller's
+`[depends(...)]` list and record it as an assumption under the
+[soundness contract](../shared/proof-extension-soundness.md). The prover does
+not infer a dependency from an earlier proof run; see
+[proof submission](../shared/running-k.md#proof-submission). Never restate a
+proven claim as an installed rewrite rule to make it available: an ordinary
+rule stands outside the proof and may assume the conclusion.
 
 ### 1. Entry (whole-program) claim
 
@@ -144,6 +143,7 @@ claim [sum-prog]:
           while (n > 0) { s = s + n ; n = n - 1 ; } => .K ...</k>
       <state> .Map => n |-> 0 s |-> sumTo(N0) </state>
   requires N0 >=Int 0
+  [depends(loop-inv)]
 ```
 
 - LHS: the full program text in `<k>`; initial state (`.Map` = empty).
@@ -156,8 +156,8 @@ claim [sum-prog]:
 ### 2. Loop-invariant (circularity) claim
 
 States what the loop does at the loop head, given symbolic accumulator values.
-This is the coinductive hypothesis — kprove uses the claim to discharge the loop
-by applying it to itself.
+This is the coinductive hypothesis: APR applies the circularity claim at a
+matching loop head to discharge the loop.
 
 ```k
 claim [loop-inv]:
@@ -165,6 +165,7 @@ claim [loop-inv]:
       <state> n |-> (N:Int => 0)
               s |-> (S:Int => S +Int sumTo(N)) </state>
   requires N >=Int 0
+  [circularity]
 ```
 
 - Starting at the loop head with `n |-> N` and `s |-> S` (both symbolic), `N >=
@@ -183,8 +184,8 @@ requires "verification.k"
 module SPEC
   imports VERIFICATION
 
-  claim [loop-inv]: ...
-  claim [sum-prog]: ...
+  claim [loop-inv]: ... [circularity]
+  claim [sum-prog]: ... [depends(loop-inv)]
 endmodule
 ```
 
@@ -206,7 +207,7 @@ separate `VERIFICATION` module. If a repair changes summary definitions,
 repeat the spec audit and all affected downstream checks.
 
 ```k
-// verification.k — MiniPy example; use the selected registry entryFile
+// verification.k — schematic APR example; adapt to the selected semantics
 requires "semantics.k"
 
 module VERIFICATION-SUMMARIES
@@ -252,8 +253,7 @@ errors are cheaper to fix before lemmas exist.
 - [K functions, claims, and proof modules](../shared/k-claims.md) — claim
   syntax, `requires`/`ensures`, labels, and proof-module restrictions.
 - `proving-spec` — next step after the spec audit passes: adds proof
-  extensions to the `VERIFICATION` module and makes the claims pass
-  `kprove`.
+  extensions to the `VERIFICATION` module and closes the APR claims.
 - `validating-proof` — independently audits proof-extension soundness and
   validates intent, trust, and evidence for a passing proof.
 

@@ -47,6 +47,7 @@ claim [loop-inv]:
       <state> n |-> (N:Int => 0)
               s |-> (S:Int => S +Int sumTo(N)) </state>
   requires N >=Int 0
+  [circularity]
 ```
 
 - `requires` constrains the starting configuration.
@@ -59,4 +60,5 @@ claim [loop-inv]:
 ## Claim labels
 
 Use `kprover prove --help` for label spelling, claim selection, and filtering
-errors.
+errors. See [writing-spec](../writing-spec/SKILL.md#the-two-claims-in-speck)
+for claim reuse attributes.

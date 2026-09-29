@@ -8,7 +8,8 @@ refine `V` to sort `S` in the Haskell backend: the fixed rule stays stuck on
 the unbounded claim unrolls or accumulates unsolved existential witnesses.
 Neither escape is acceptable: a bounded-size theorem is a material domain
 restriction (`PARTIAL`, not success), and an operational rule that force-casts
-or intercepts the program manufactures `#Top` and fails the soundness gates.
+or intercepts the program manufactures a passing result and fails the
+soundness gates.
 
 The sound repair is the guarded total-projection idiom (the upstream K
 `ceils.k` family). Introduce a total twin of the partial subsort cast and keep
@@ -64,7 +65,7 @@ Soundness obligations — classify each piece under the shared
   exactly the original static match domain (match-domain containment and
   value fidelity — a twin that widens, narrows, or redirects the operation
   is an unsound bridge).
-- The projection has **no evaluators and no `kprove`-firing rule** beyond
+- The projection has **no evaluators and no proof-time rule** beyond
   collapse/orientation; it can never produce a value out of nothing (an
   unconstrained result symbol is the oracle bug).
 - Orientation rules carry `preserves-definedness` and fire only where the

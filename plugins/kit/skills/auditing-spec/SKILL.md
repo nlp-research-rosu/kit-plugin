@@ -62,6 +62,10 @@ semantics definition inside that validation task. Parser or module errors are
 findings now, not surprises during proving. Confirm concrete program identifiers
 parse as identifiers, not K variables
 ([k-syntax.md](../shared/k-syntax.md#grammar)).
+Check the labels and claim reuse attributes against
+[writing-spec](../writing-spec/SKILL.md#the-two-claims-in-speck): every
+self-applying invariant needs `[circularity]`, and every cross-claim use needs
+`[depends(...)]` naming an existing label.
 
 ## Findings need witnesses
 

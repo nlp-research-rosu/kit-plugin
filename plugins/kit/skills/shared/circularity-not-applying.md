@@ -3,7 +3,7 @@
 ## Symptom
 
 Symbolic execution returns to what appears to be a loop or recursive control
-point, but `kprove` expands another iteration instead of applying the invariant
+point, but APR expands another iteration instead of applying the invariant
 claim.
 
 ## Mechanism
@@ -30,14 +30,16 @@ even if both constructs were intended to describe the same loop.
 
 ## Diagnosis and repair
 
-1. Isolate the invariant claim and use
+1. Check the claim reuse attributes in
+   [writing-spec](../writing-spec/SKILL.md#the-two-claims-in-speck).
+2. Isolate the invariant claim and use
    [bounded inspection](../proving-spec/SKILL.md#symptom-router-and-bounded-inspection).
-2. Compare the complete reached configuration with the claim's left-hand side.
-3. If the reached term is the intended recurring representation, rewrite the
+3. Compare the complete reached configuration with the claim's left-hand side.
+4. If the reached term is the intended recurring representation, rewrite the
    claim to describe that exact configuration.
-4. If the semantics was intended to reconstruct a different recurring term,
+5. If the semantics was intended to reconstruct a different recurring term,
    fix that semantics rule and rerun its concrete smoke tests.
-5. Rebuild and rerun the invariant claim before attempting the whole program.
+6. Rebuild and rerun the invariant claim before attempting the whole program.
 
 Do not replace a language's loop with an unrelated example encoding merely to
 copy a passing proof. The invariant and the actual recurring configuration must

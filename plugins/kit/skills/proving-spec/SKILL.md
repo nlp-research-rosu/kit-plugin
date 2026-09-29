@@ -7,14 +7,14 @@ description: 'Use when spec.k exists and its claims must be proved — from the 
 
 This stage produces the proof-extension layer: additions to the
 `VERIFICATION` module of `verification.k`, `prove.sh` with the exact
-commands used, and a passing `#Top` run.
+commands used, and a passing proof run.
 
-`spec.k` is a set of K reachability claims. `kprove` attempts to prove each
+`spec.k` is a set of K reachability claims. Prover attempts to prove each
 claim by symbolically executing from the LHS and checking it reaches the RHS
-under the given conditions. When the proof fails, `kprove` exits non-zero and
-prints a residual configuration — the state it reached but could not close. This
-skill provides the tools to read that residual and extend `verification.k` until
-the proof closes.
+under the given conditions. When a claim remains unproved, inspect the
+residual configuration — a state it reached but could not close — in the saved
+stdout. This skill provides the tools to read that residual and extend
+`verification.k` until the proof closes.
 
 Use `writing-spec` before this skill if `spec.k` is not yet written.
 
@@ -25,14 +25,14 @@ before drafting or repairing the claims.
 
 ## Why proofs get stuck
 
-`kprove` closes a claim by rewriting the LHS to the RHS. It gets stuck when:
+The prover closes a claim by rewriting the LHS to the RHS. It gets stuck when:
 
 - **Symbolic arithmetic does not reduce.** The backend cannot discharge the
   remaining obligation as written. Express the result through a summary whose
   defining equations or lemmas fit a theory the prover can use.
-- **The loop-invariant circularity does not fire.** The recurring symbolic
-  configuration does not match the invariant claim's left-hand side closely
-  enough for the claim to apply, so the prover expands another iteration. See
+- **The loop-invariant circularity does not fire.** Its claim reuse attributes
+  are missing, or the recurring symbolic configuration does not match the
+  invariant claim's left-hand side closely enough to apply. See
   [circularity debugging](../shared/circularity-not-applying.md).
 - **A helper rule is in the spec module instead of `verification.k`.** Plain
   `rule` statements in the spec module are a K compiler error; only `claim`s and
@@ -87,8 +87,8 @@ When the proof audit fails Gate A with TARGET `proving-spec`, you are
 responsible for repairing the finding recorded in the audit artifact.
 Preserve the current solution and artifacts and repair in place:
 
-1. **First, remove or disable the offending extension.** Do not treat `#Top`
-   obtained through that extension as a usable proof state.
+1. **First, remove or disable the offending extension.** Do not treat a passing
+   result obtained through that extension as a usable proof state.
 2. Resubmit with the edited verification source, then inspect the genuine
    residual produced by fixed semantics and the remaining justified theory.
 3. **Prefer fixed-semantics execution** and address the residual without an
@@ -107,7 +107,7 @@ Preserve the current solution and artifacts and repair in place:
 7. Produce terminal `Incomplete work` only when repair attempts expose an
    evidenced hard blocker under the shared contract.
 
-After the repaired construction reaches `#Top`, rerun the
+After the repaired construction passes, rerun the
 proof audit. A rollback is part of the same run,
 not a retry or a fresh attempt.
 
@@ -169,14 +169,15 @@ submit proof → read the residual → add one lemma or strengthen invariant →
 details and [running-k.md](../shared/running-k.md) for workflow and evidence
 rules. Record the command in `prove.sh`.
 
-An outcome of `proved` with tool exit 0 means the claim closed with a
-`#Top` KAST under the supplied theory; it is necessary but
-insufficient for validation. For `notProved`, read the structured
-residual and downloaded logs. Always submit under the resource caps
-below.
+An outcome of `proved` with tool exit 0 means the selected claims closed or
+were admitted under the supplied theory; check the per-claim stdout and any
+trusted labels under [reading the result](../shared/running-k.md#reading-the-result).
+For `notProved`, read the stdout residual and stderr. Always submit under the
+resource caps below.
 
 **Step 2: read the residual.** The residual is the symbolic configuration
-`kprove` reached but could not match against the claim's RHS. Compare its term
+the prover reached but could not match against the claim's RHS. Extract it
+from stdout as described in the shared result contract, then compare its term
 shape to the RHS. The mismatch locates what is missing.
 
 **Step 3: bound and compare the trace.** Isolate one claim, choose a
@@ -187,7 +188,7 @@ nearby increasing bounds using the symptom router below.
 add the narrowest guarded lemma, summary equation, auxiliary claim, or invariant
 strengthening that addresses the residual. Resubmit the focused claim.
 
-Record the extension even when the proof reaches `#Top`; prover success does not
+Record the extension even when the proof passes; prover success does not
 validate the added theory.
 
 After editing `verification.k`, submit another attempt under the
@@ -196,10 +197,10 @@ After editing `verification.k`, submit another attempt under the
 **Important hygiene:**
 
 - Prove claims in order: loop invariants first, innermost loop first,
-  then all claims together — the
-  final run is unfiltered, so the invariant circularities stay
-  available. A passing loop invariant makes the whole-program proof
-  fast.
+  then all claims together. An unfiltered run alone does not make claims
+  available to one another under APR; retain the reuse attributes from
+  [writing-spec](../writing-spec/SKILL.md#the-two-claims-in-speck).
+  A passing loop invariant makes the whole-program proof fast.
 
 ---
 
@@ -248,7 +249,7 @@ Match the observed symptom, then open only the owning reference.
 | Prover or the Kit client is unavailable | [running-k.md — Shell setup](../shared/running-k.md#shell-setup) |
 | Backend or kompiled-definition mismatch | [running-k.md — Backends](../shared/running-k.md#backends) |
 | K cannot find the requested main syntax module | [running-k.md — Backends](../shared/running-k.md#backends) |
-| Unsure whether `#Top` means success | [running-k.md — Reading the result](../shared/running-k.md#reading-the-result) |
+| Unsure whether a backend result means success | [running-k.md — Reading the result](../shared/running-k.md#reading-the-result) |
 | Proof module rejects an ordinary rule | [k-claims.md — Functions and simplification](../shared/k-claims.md#functions-and-simplification) |
 | `Unused filtering labels` | `kprover prove --help` |
 | A symbolic helper keeps expanding | [symbolic-recursion.md](../shared/symbolic-recursion.md) |
@@ -274,9 +275,9 @@ bounds:
   circularity matching problem.
 - Rapidly growing helper terms indicate symbolic recursion.
 
-A depth-limited result is diagnostic, not a proof result. Fix one
-identified mechanism, rebuild if needed, and rerun the isolated claim
-without the bound.
+A run with `--depth` is diagnostic, even if every claim closes within the
+bound. Fix one identified mechanism, rebuild if needed, and rerun the isolated
+claim without the bound for the final proof.
 
 ---
 
@@ -301,7 +302,7 @@ without the bound.
   `verification.k`, `SCOPE.md`,
   and the task statement; on a redo, the failing audit artifact path.
 - Produces: proof extensions in the `VERIFICATION` module, `prove.sh`
-  with the exact commands used, and a `#Top` run.
+  with the exact commands used, and a passing proof run.
 - Record: two sentences — what closed and what theory was added
   — plus the artifact paths. Do not restate residuals or reasoning;
   the audit works from the files.

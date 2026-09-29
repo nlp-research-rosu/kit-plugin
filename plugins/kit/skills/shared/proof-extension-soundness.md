@@ -1,7 +1,7 @@
 # Proof-extension soundness contract
 
 Use this contract whenever a proof adds a function, equation, claim, or rewrite
-that contributes to closing a reachability claim. A successful kprove run
+that contributes to closing a reachability claim. A successful Prover run
 establishes closure under the supplied theory; validate that theory before
 claiming a proof of the program.
 
@@ -64,10 +64,10 @@ further repair. Within the one orchestrated run:
 
 1. the proof audit reports FAIL naming the owning stage;
 2. the construction agent must remove or disable every offending extension
-   and rerun without them to recover the genuine residual — `#Top`
+   and rerun without them to recover the genuine residual — a passing result
    obtained through an offending extension is not a usable proof
    state; and
-3. the construction is repaired and rebuilt, `#Top` recovered, and
+3. the construction is repaired and rebuilt, a passing result recovered, and
    the proof audit rerun.
 
 A rollback is part of the one orchestrated run, not a retry or a
@@ -80,9 +80,9 @@ backend or resource failure, or inconsistent requirements. Record the evidence
 and the repair attempts that exposed the blocker.
 
 A difficult proof is not a hard blocker. A slower safe encoding is not a hard
-blocker. Repair that requires redesign is not a hard blocker. `#Top` obtained
-only through an unsound shortcut is not a hard blocker and is not a usable proof
-state.
+blocker. Repair that requires redesign is not a hard blocker. A passing result
+obtained only through an unsound shortcut is not a hard blocker and is not a
+usable proof state.
 
 ## Proof-extension record
 

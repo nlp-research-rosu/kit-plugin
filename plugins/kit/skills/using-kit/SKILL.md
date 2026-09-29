@@ -7,16 +7,19 @@ description: 'Use when asked to verify a program with the K framework — provin
 
 This kit proves **partial correctness**: if a program terminates and
 its precondition holds, then its postcondition holds at termination.
+The live proof workflow covers PyK APR for the `evm` and `python-3-14-6`
+semantics IDs. Prover may advertise other IDs, but KIT does not guide live
+proofs for them.
 
-`kprove` establishes reachability claims by symbolic execution. For a
+Prover establishes reachability claims by symbolic execution. For a
 loop, an invariant claim acts coinductively as a **circularity**: when
 execution returns to a matching symbolic loop-head configuration, the
 prover may apply that claim instead of unrolling the loop again.
 
 Keep three activities distinct:
 
-- **Verification** — `kprove` exits 0 and prints `#Top` under the
-  supplied theory.
+- **Verification** — Prover reports `proved` with tool exit 0 and the
+  backend's claim evidence under the supplied theory.
 - **Soundness audit** — proof extensions genuinely describe the
   program and do not introduce execution-bypassing reasoning.
 - **Validation** — theorem scope, non-vacuity, trust, and independent
@@ -66,16 +69,16 @@ select bundled semantics -> writing-spec -> auditing-spec
 | Select the language | `using-kit` | Session ID with one pinned revision |
 | State the theorem | `writing-spec` | `spec.k`, `VERIFICATION-SUMMARIES`, `SCOPE.md` |
 | Audit the theorem | `auditing-spec` | `audits/spec-audit-<n>.md` |
-| Close the proof | `proving-spec` | `VERIFICATION` extensions, `prove.sh`, `#Top` |
+| Close the proof | `proving-spec` | `VERIFICATION` extensions, `prove.sh`, passing proof evidence |
 | Audit the proof | `validating-proof` | `audits/proof-audit-<n>.md`, `PROOF.md` |
 
-Before construction, use the supplied semantics ID, or select the matching ID
-from `kprover semantics`. Start the construction session and read its returned
-sources with the agent harness. Follow
-[running-k.md](../shared/running-k.md#semantics-descriptor)
-for the shared selection contract; command help owns usage details.
-If no ID matches, stop as BLOCKED. Live Kit never asks the user for semantics
-files and never runs `writing-semantics` or `auditing-semantics`.
+Before construction, use the supplied semantics ID or select a matching ID from
+`kprover semantics`. Confirm it is one of the PyK APR IDs above. Start the
+construction session and read its returned sources with the agent harness.
+Follow [running-k.md](../shared/running-k.md#semantics-descriptor) for the shared
+selection contract; command help owns usage details.
+If no PyK APR ID matches, stop as BLOCKED. Live Kit never asks the user for
+semantics files and never runs `writing-semantics` or `auditing-semantics`.
 
 Dispatch the final audit without inherited conversation or construction
 reasoning. Keep the candidate unchanged during the audit. Template:

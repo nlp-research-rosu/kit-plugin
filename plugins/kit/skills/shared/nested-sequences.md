@@ -33,4 +33,4 @@ Sound approach, in order:
    If a claim still diverges after the restructuring above, record each
    attempt with its resident-memory evidence and report the limitation
    honestly. Do not add iterator accelerator or interception rules to force
-   progress — those manufacture `#Top` and fail the soundness gates.
+   progress — those manufacture a passing result and fail the soundness gates.
