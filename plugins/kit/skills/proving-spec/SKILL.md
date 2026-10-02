@@ -206,37 +206,24 @@ After editing `verification.k`, submit another attempt under the
 
 ## Resource caps
 
-Choose a time cap before submitting proof tasks; use `kprover config --help`
+Use the timeout shown by `kprover config`. It limits each backend task,
+including compilation and proof execution. See `kprover config --help`
 for settings and cancellation behavior.
-The cap matters because the failure modes that matter — a circularity
-that fails to re-match, a symbolic helper that keeps unfolding — do not
-terminate on their own. Elapsed time alone does not identify either mode.
 
-`kprover prove` automatically polls Prover at the configured interval
-while it runs and replaces the current `proof-NNN/result.json` with each
-task response. Keep the command in a live shell session and read that
-file to inspect `task.metrics` before completion when Prover supplies
-them; the agent does not need to poll Prover separately. A snapshot may
-remain unchanged during long backend work, so metrics do not establish
-that a task is healthy.
+`kprover prove` polls Prover automatically and updates
+`proof-NNN/result.json`. Keep the command running and read `task.metrics`
+in that file to check progress when metrics are available. They may stay
+unchanged while the backend is still working.
 
-Use the chosen `--task-timeout` or the configured default. A cap bounds how
-long you will wait on a task that may never return: the prover cannot
-tell you it is hung, so pick a time beyond which stuck is a better
-explanation than slow. A cap confines the run's cost; it does not grade
-its speed — so err generous: a healthy proof must never be the thing a
-cap kills. Memory is Prover-side and not yours to size; a task that
-dies of resources surfaces as `failed` or `inconclusive`, and the same
-reading applies.
+If a proof reaches the time limit before finishing, you may increase
+`task_timeout_seconds` in `config.toml` and retry. Do not change the timeout
+because a completed task returned `notProved`. A timeout alone does not
+mean the claim is false or the prover is stuck.
 
-A generous cap firing — `inconclusive` at the timeout, or the client's
-cancellation — is therefore strong evidence the task is stuck in one of
-those non-terminating modes, not under-provisioned. Go to the symptom
-router below; raise the timeout only when bounded inspection shows new
-program points at increasing depths — genuinely slow, still moving.
-
-Bounded inspection still needs a time cap. Use the diagnostic controls in
-`kprover prove --help` for the inspection below.
+Check the saved result before retrying. If the proof keeps repeating
+states or unfolding a helper, use the diagnostics below to find the cause.
+Depth-bounded diagnostics use the same configured timeout; see
+`kprover prove --help` for their options.
 
 ---
 

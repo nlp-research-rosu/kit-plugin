@@ -22,6 +22,7 @@ For the nested session command, use `kprover session start --help`.
 | Command | When it helps |
 |---|---|
 | `kprover config` | Inspect the endpoint and effective resource limits |
+| `kprover login` | Connect through the browser without exposing the API key |
 | `kprover health` | Check whether live verification is available |
 | `kprover semantics` | List server-supported language revisions |
 | `kprover semantics fetch` | Download shared semantics sources for inspection |

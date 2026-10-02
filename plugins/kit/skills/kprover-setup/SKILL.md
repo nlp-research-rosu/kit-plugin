@@ -50,4 +50,12 @@ Use the [command list](../shared/running-k.md#cli-contract) to inspect
 configuration and check server health and the semantics
 registry. Read the relevant command's `--help` for detailed usage.
 
+If Prover requires authentication, run `kprover login` and show the user its
+`verification_url`. The link includes the code; the user signs in and
+approves. Keep the command running until it saves the key
+and exits with `connected`, then retry the operation. Never ask for a key
+in chat or read the CLI's
+credential files. Read `kprover login --help` for portal selection and retrying
+an expired connection.
+
 Report an exact CLI error instead of falling back when a server check fails.

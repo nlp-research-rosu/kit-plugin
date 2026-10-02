@@ -47,15 +47,9 @@ initiating prompt states a level, use it. Otherwise ask the human.
 If nobody can answer — a non-interactive run — assume maximum
 automation and never wait on a reply.
 
-Settle the prover task timeout the same way: if the initiating prompt
-supplies one, use it; otherwise offer the human the option to set it,
-hinting at times from prior runs when such data exists. Absent
-guidance, choose generously yourself: the timeout bounds how long a
-task may run before stuck becomes a better explanation than
-slow — it confines cost, never grades speed, so a healthy proof must
-never be the thing it kills. State the timeout you chose in the
-progress message, so the human sees the number before the run. Pass it
-with `--task-timeout` on each run, validate, and prove command.
+Use the timeout shown by `kprover config` for run, validate, and prove
+commands, including audit tasks. For proofs that time out, follow
+[proving-spec — Resource caps](../proving-spec/SKILL.md#resource-caps).
 
 ## The pipeline
 
