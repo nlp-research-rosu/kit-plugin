@@ -66,6 +66,10 @@ The plugin includes eight skills and their shared references: `using-kit`,
 `validating-proof`, `writing-semantics`, and `auditing-semantics`.
 Verification requires Prover access.
 
+## Examples
+
+We put some examples with starting verification challenges at https://github.com/nlp-research-rosu/kit-examples. 
+
 ## Updates
 
 Refresh the marketplace and update the plugin:
