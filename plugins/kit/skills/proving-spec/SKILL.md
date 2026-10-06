@@ -165,7 +165,7 @@ postcondition (`s |-> S +Int sumTo(N)`) and the summary function definition
 submit proof → read the residual → add one lemma or strengthen invariant → re-run
 ```
 
-**Step 1: submit a proof task.** Use `kprover prove --help` for submission
+**Step 1: submit a proof task.** Use `prover-client prove --help` for submission
 details and [running-k.md](../shared/running-k.md) for workflow and evidence
 rules. Record the command in `prove.sh`.
 
@@ -206,11 +206,11 @@ After editing `verification.k`, submit another attempt under the
 
 ## Resource caps
 
-Use the timeout shown by `kprover config`. It limits each backend task,
-including compilation and proof execution. See `kprover config --help`
+Use the timeout shown by `prover-client config`. It limits each backend task,
+including compilation and proof execution. See `prover-client config --help`
 for settings and cancellation behavior.
 
-`kprover prove` polls Prover automatically and updates
+`prover-client prove` polls Prover automatically and updates
 `proof-NNN/result.json`. Keep the command running and read `task.metrics`
 in that file to check progress when metrics are available. They may stay
 unchanged while the backend is still working.
@@ -223,7 +223,25 @@ mean the claim is false or the prover is stuck.
 Check the saved result before retrying. If the proof keeps repeating
 states or unfolding a helper, use the diagnostics below to find the cause.
 Depth-bounded diagnostics use the same configured timeout; see
-`kprover prove --help` for their options.
+`prover-client prove --help` for their options.
+
+### Under a wall-clock limit
+
+When the run itself has a deadline, a stuck task spends time you cannot
+recover:
+
+- Prove focused claims before the unfiltered run, so one stuck task costs
+  one cap, not the session.
+- On every `proved`, copy the exact submitted `spec.k` and `verification.k`
+  aside as the proved snapshot. Deliver files byte-identical to the latest
+  snapshot. Make no edit after the last proved check; if an edit cannot be
+  proved again before the deadline, restore the snapshot.
+- If `task_timeout_seconds` exceeds the time left, less what delivery
+  needs, lower it in `config.toml` before submitting.
+- After a cap fires, and before editing claims, run the program with
+  `prover-client run` on inputs that make the stuck loop run zero, one, and two
+  times; check the claim's right-hand side against each final state. Runs
+  take seconds and use no attempt budget; another cap costs minutes.
 
 ---
 
@@ -234,11 +252,11 @@ Match the observed symptom, then open only the owning reference.
 | Symptom | Open |
 |---|---|
 | Prover or the Kit client is unavailable | [running-k.md — Shell setup](../shared/running-k.md#shell-setup) |
-| Backend or kompiled-definition mismatch | [running-k.md — Backends](../shared/running-k.md#backends) |
+| Backend or definition mismatch | [running-k.md — Backends](../shared/running-k.md#backends) |
 | K cannot find the requested main syntax module | [running-k.md — Backends](../shared/running-k.md#backends) |
 | Unsure whether a backend result means success | [running-k.md — Reading the result](../shared/running-k.md#reading-the-result) |
 | Proof module rejects an ordinary rule | [k-claims.md — Functions and simplification](../shared/k-claims.md#functions-and-simplification) |
-| `Unused filtering labels` | `kprover prove --help` |
+| `Unused filtering labels` | `prover-client prove --help` |
 | A symbolic helper keeps expanding | [symbolic-recursion.md](../shared/symbolic-recursion.md) |
 | A loop repeats and the invariant is never applied | [circularity-not-applying.md](../shared/circularity-not-applying.md) |
 | An external operation has no faithful equations | [opaque-primitives.md](../shared/opaque-primitives.md) |
@@ -248,7 +266,7 @@ Match the observed symptom, then open only the owning reference.
 | The proof runs without revealing where progress stops | Bounded inspection below |
 
 If a timed-out task leaves no residual, isolate one claim and inspect it with
-a depth bound using `kprover prove --help`, under the
+a depth bound using `prover-client prove --help`, under the
 [proof submission rules](../shared/running-k.md#proof-submission).
 
 Choose the bound from the scale of the observed trace, not from a universal

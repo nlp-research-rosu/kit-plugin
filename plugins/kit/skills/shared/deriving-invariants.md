@@ -56,13 +56,16 @@ flips the head for one parity of the total length. When a loop body
 alternates by parity, phrase the invariant so one application of the
 invariant claim covers one full period.
 
-**Concrete adequacy check before use.** Before building any proof on a
-summary function that constructs a result, execute the fixed semantics
-on at least two small concrete inputs satisfying the
-precondition, chosen to distinguish each phase or branch of the summary
-(e.g. both parities of a length parameter, for an alternating loop), and
-confirm the summary computes the identical result. This costs seconds;
-a wrong summary discovered after the proof closes costs the whole proof.
+## Concrete adequacy check
+
+Before proving, run the program with `prover-client run` on at least two inputs
+satisfying the precondition: a boundary input and a larger one, chosen to
+distinguish each phase or branch of the summary (e.g. both parities of a
+length parameter, for an alternating loop). Check the entry claim's whole
+right-hand side against each final state: every cell value it pins, and every
+postcondition with its summary functions evaluated on those literals. A
+summary that does not reduce on literals fails the check. This costs seconds;
+a wrong postcondition found after the proof closes costs the whole proof.
 
 ## The three obligation shapes
 

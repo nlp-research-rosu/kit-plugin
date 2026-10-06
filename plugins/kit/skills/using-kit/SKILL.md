@@ -7,9 +7,9 @@ description: 'Use when asked to verify a program with the K framework — provin
 
 This kit proves **partial correctness**: if a program terminates and
 its precondition holds, then its postcondition holds at termination.
-The live proof workflow covers PyK APR for the `evm` and `python-3-14-6`
-semantics IDs. Prover may advertise other IDs, but KIT does not guide live
-proofs for them.
+The live proof workflow covers PyK APR for the `evm`, `python-3-14-6` and
+`imp` semantics IDs. Prover may advertise other IDs, but KIT does not guide
+live proofs for them.
 
 Prover establishes reachability claims by symbolic execution. For a
 loop, an invariant claim acts coinductively as a **circularity**: when
@@ -29,10 +29,10 @@ Keep three activities distinct:
 
 Live verification is the default. Load and run
 [running-k.md — Shell setup](../shared/running-k.md#shell-setup),
-which locates the global `kprover` CLI and probes server health. When it
+which locates the global `prover-client` CLI and probes server health. When it
 succeeds, stay live and use only that CLI. If setup is incomplete, route to
-`kprover-setup` before deciding Prover is unavailable. The agent host does not
-call local K tools. If Prover remains unavailable, stop as BLOCKED
+`prover-client-setup` before deciding Prover is unavailable.
+If Prover remains unavailable, stop as BLOCKED
 and report the exact error.
 
 ## Run the pipeline
@@ -47,7 +47,7 @@ initiating prompt states a level, use it. Otherwise ask the human.
 If nobody can answer — a non-interactive run — assume maximum
 automation and never wait on a reply.
 
-Use the timeout shown by `kprover config` for run, validate, and prove
+Use the timeout shown by `prover-client config` for run, validate, and prove
 commands, including audit tasks. For proofs that time out, follow
 [proving-spec — Resource caps](../proving-spec/SKILL.md#resource-caps).
 
@@ -67,7 +67,7 @@ select bundled semantics -> writing-spec -> auditing-spec
 | Audit the proof | `validating-proof` | `audits/proof-audit-<n>.md`, `PROOF.md` |
 
 Before construction, use the supplied semantics ID or select a matching ID from
-`kprover semantics`. Confirm it is one of the PyK APR IDs above. Start the
+`prover-client semantics`. Confirm it is one of the PyK APR IDs above. Start the
 construction session and read its returned sources with the agent harness.
 Follow [running-k.md](../shared/running-k.md#semantics-descriptor) for the shared
 selection contract; command help owns usage details.
@@ -110,13 +110,20 @@ REASON: <one sentence>
   BLOCKED as a hard-blocker candidate.
 
 Start one bounded session before construction and reuse its ID for concrete
-runs, validation, proofs, and every repair attempt. When its configured attempt
-limit is exhausted, stop and ask the human for help; never create a replacement
-session to bypass the limit.
+runs, validation, proofs, and every repair attempt. When an attempt limit is
+exhausted, stop live work and ask whether the user wants to raise that limit,
+stating its current value and the proposed value. If approved, edit the
+corresponding limit in `config.toml` yourself, confirm it with
+`prover-client config`, and continue in the same session with used counters
+unchanged. Do not ask the user to edit the file or assume they chose the
+configured value. Never create a replacement session to bypass the limit.
+In non-interactive runs, deliver instead; see
+[running-k.md](../shared/running-k.md#cli-contract).
 The final proof audit uses its own clean-room workspace and session for
 replay and negative probes, never for construction repairs or extra attempts.
 When handing control back to the user, retain session IDs and evidence paths
-in the report. New user feedback that
+in the report. Approval to raise a limit resumes the existing session.
+Other new user feedback that
 re-enters verification starts a fresh session with full budgets, even for the
 same program; explanation-only questions create none. Returning from an audit
 to construction is not a user handoff and does not reset construction budgets.
@@ -133,6 +140,20 @@ fallback also when the harness cannot provide a fresh subagent context.
 Record `same-agent review` in the audit and `PROOF.md` when using the fallback;
 do not call it independent review. Fresh replay and negative probes remain
 required in live mode.
+
+## Minimum audit
+
+A `proved` result is not the end of the run. When time or budget cannot
+cover the audits, run at least these checks yourself before delivering, and
+record them in `PROOF.md` as `minimum audit`:
+
+- Restate the precondition and postcondition in plain language and compare
+  them with the contract, clause by clause.
+- Every `requires` conjunct that excludes contract inputs has its
+  [witness](../shared/gate-b-adequacy.md#b1-input-domain-alignment).
+- The [concrete adequacy check](../shared/deriving-invariants.md#concrete-adequacy-check)
+  passed on the delivered claims.
+- The delivered files are the latest proved snapshot.
 
 ## Router: one-off requests
 

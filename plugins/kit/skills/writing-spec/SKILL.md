@@ -11,7 +11,7 @@ This stage states the theorem. It produces three artifacts: `spec.k`
 `SCOPE.md` (the scope record the spec audit reads).
 
 `spec.k` and `verification.k` compile against the immutable semantics selected
-by the session ID. Inspect it with `kprover session show` first:
+by the session ID. Inspect it with `prover-client session show` first:
 
 | State | Action |
 |---|---|
@@ -91,6 +91,21 @@ Preconditions and postconditions are constraints on the full K configuration
 (the `<k>` cell and every state cell) before and after the rewrite — not just
 function inputs/outputs in the ordinary sense.
 
+**Read each operator from the semantics, not from its symbol.** A language
+may give `+`, `<` or `==` a meaning other than the familiar one. Find the rule
+for every operator the program uses, quote its rule in `SCOPE.md`, then
+confirm the reading with `prover-client run` on a small concrete input before
+drafting claims. If the semantics rejects concrete runs, confirm it instead
+with a claim from the loop head through one pass of the body that pins the
+guard variable's new value.
+
+**Keep `requires` to the contract's input domain.** Never add a conjunct to
+avoid non-termination or to make a loop run zero times; the
+[input-domain obligations](../shared/gate-b-adequacy.md#b1-input-domain-alignment)
+say how to split the domain instead and when an exclusion is justified.
+A precondition under which a loop cannot run even once is a sign of a
+misread operator: re-read the operator rules before keeping it.
+
 **Programs that produce a return value** — use `ensures` to constrain it.
 Example shape for a claim where the computation leaves a result `?R` in `<k>`:
 
@@ -152,6 +167,12 @@ claim [sum-prog]:
 - `...` in `<k>` is a frame variable for the rest of the continuation.
 - The state uses a closed map (no `...`) when exactly those keys must be
   present.
+- Every value on the right-hand side is part of the theorem. `n |-> 0` is
+  true here because this loop counts `n` down to zero. For a variable that is
+  not an output and whose exit value you have not worked out, write `?_`.
+- Constrain results through right-hand-side values or `?X` variables, never
+  through a variable bound on the left of a cell the program overwrites: an
+  `ensures` on that initial symbol restricts the input, not the result.
 
 ### 2. Loop-invariant (circularity) claim
 
@@ -172,7 +193,8 @@ claim [loop-inv]:
   0`.
 - The loop terminates with `n |-> 0` and `s |-> S + sumTo(N)`.
 - The `=>` inside each cell maps old to new: `N:Int => 0` means `n` starts at
-  `N` and ends at `0`.
+  `N` and ends at `0`. It asserts that exit value; do not copy the shape for a
+  variable that ends elsewhere.
 
 Both claims live in a single spec module that only contains `claim`s (and
 optionally `[simplification]` rules). Plain `rule` statements in a spec module
@@ -230,6 +252,13 @@ endmodule
 Definitional equations must be truthful, guarded, terminating, and
 cover every use (the definitional summary class of the
 [soundness contract](../shared/proof-extension-soundness.md)).
+They must also evaluate on concrete arguments: a left-hand side such as
+`f(A, I +Int 1)` never matches a literal, so write `f(A, I)` with a guard
+and `I -Int 1` on the right.
+
+Before handing off, run the
+[concrete adequacy check](../shared/deriving-invariants.md#concrete-adequacy-check)
+on the entry claim.
 
 Judge the drafted domain and meaning against the
 [Gate B obligations](../shared/gate-b-adequacy.md) before handing off:
@@ -242,7 +271,7 @@ the spec audit will apply them to the artifacts.
 Once `spec.k`, the `VERIFICATION-SUMMARIES` module, and `SCOPE.md` are
 drafted, the spec audit judges adequacy and summary faithfulness
 from the artifacts; do not duplicate those checks here.
-Machine-check the structure with a focused `kprover validate` task
+Machine-check the structure with a focused `prover-client validate` task
 even before the proof is expected to close — early parser and module
 errors are cheaper to fix before lemmas exist.
 

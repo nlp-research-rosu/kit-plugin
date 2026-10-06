@@ -1,7 +1,7 @@
 {
   "name": "kit",
-  "version": "0.1.4",
-  "description": "Verify programs in K and independently validate proof soundness, scope, and trust.",
+  "version": "0.1.5",
+  "description": "Verify programs and independently audit the results.",
   "author": {
     "name": "Grigore Rosu and the Formal Verification Kit contributors"
   },

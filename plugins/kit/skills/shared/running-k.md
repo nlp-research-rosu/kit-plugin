@@ -5,38 +5,41 @@ workflow rules. Detailed CLI usage lives in the executable's help.
 
 ## Shell setup
 
-Live mode requires the global `kprover` CLI and a reachable Prover server.
+Live mode requires the global `prover-client` CLI and a reachable Prover server.
 Locate the executable on `PATH`, check server health, and inspect the semantics
 registry using the commands below. If setup is incomplete, use
-[kprover-setup](../kprover-setup/SKILL.md), then retry.
+[prover-client-setup](../prover-client-setup/SKILL.md), then retry.
 
-Treat a failed health check as an infrastructure problem. Never fall back to
-local K commands in live mode.
+Treat a failed health check as an infrastructure problem.
 
 ## CLI contract
 
-`kprover` is the only live K client. Read `kprover --help` for the command tree
-and `kprover <command> --help` for arguments, examples, settings, and results.
-For the nested session command, use `kprover session start --help`.
+`prover-client` is the only live K client. Read `prover-client --help` for the
+command tree
+and `prover-client <command> --help` for arguments, examples, settings, and
+results.
+For the nested session command, use `prover-client session start --help`.
 
 | Command | When it helps |
 |---|---|
-| `kprover config` | Inspect the endpoint and effective resource limits |
-| `kprover login` | Connect through the browser without exposing the API key |
-| `kprover health` | Check whether live verification is available |
-| `kprover semantics` | List server-supported language revisions |
-| `kprover semantics fetch` | Download shared semantics sources for inspection |
-| `kprover run` | Check the program's concrete behavior under that definition |
-| `kprover validate` | Catch source and module errors before proving |
-| `kprover session start` | Create a session and locate its working directory |
-| `kprover session show` | Inspect a session's pin, workspace, and used counters |
-| `kprover prove` | Submit a proof attempt or inspect a stuck claim |
+| `prover-client config` | Inspect the endpoint and effective resource limits |
+| `prover-client login` | Connect through the browser without exposing the API key |
+| `prover-client health` | Check whether live verification is available |
+| `prover-client semantics` | List server-supported language revisions |
+| `prover-client semantics fetch` | Download shared semantics sources for inspection |
+| `prover-client run` | Check the program's concrete behavior under that definition |
+| `prover-client validate` | Catch source and module errors before proving |
+| `prover-client session start` | Create a session and locate its working directory |
+| `prover-client session show` | Inspect a session's pin, workspace, and used counters |
+| `prover-client prove` | Submit a proof attempt or inspect a stuck claim |
 
 Use the CLI's structured result for workflow decisions. `exhausted` is terminal
-for the entire live KIT workflow, not merely the current command or stage. Do
-not reinterpret it as BLOCKED or an instrument failure, and do not spawn or
-continue agents or submit another live task. Stop and ask the user for help.
-Session handoff and reset rules live in
+for the entire live KIT workflow until the user approves a higher limit.
+Do not reinterpret it as BLOCKED or an instrument failure, and do not spawn or
+continue agents or submit another live task while approval is pending.
+In a non-interactive run, where nobody can answer, deliver the last proved
+sources (or the best draft, marked unproved) and report `exhausted`.
+Limit increases, session handoffs, and reset rules live in
 [using-kit](../using-kit/SKILL.md#verdicts-and-routing).
 
 ## Semantics descriptor
@@ -44,13 +47,16 @@ Session handoff and reset rules live in
 Start a session for the supplied language ID before live construction. Read
 its help for project selection, shared source locations, and audit sessions.
 The CLI owns the global `session.json`. Inspect its semantics ID and pinned
-revision with `kprover session show`. Use `kprover semantics fetch` to locate
+revision with `prover-client session show`. Use `prover-client semantics fetch`
+to locate
 the shared reference sources. Create `workspaceDir/inputs/` for session input
 files: `spec.k`, `verification.k`, local dependencies, and concrete test
 programs.
 Keep reports, scripts, and operation results outside `inputs/`; the original
 program stays in the project. Pass the session ID to each live command; command
-help defines input paths.
+help defines input paths. `prover-client run --program` takes a path relative to
+the
+session's project directory, not an absolute path.
 
 For a clean-room audit, start another session for the same semantics ID and
 confirm its repository and commit match the construction session. A changed
@@ -100,6 +106,10 @@ proof ends with unproved states, the last stdout line is
 several failing, pending, or depth-bounded leaves, so it is not necessarily a
 counterexample. Read stderr and the task result alongside stdout.
 
+An internal exception from a prove task that validated cleanly is a failed
+proof whose residual could not be printed, not a syntax problem. Do not bisect
+the sources; check the claims' boundary cases and inspect a focused claim.
+
 For a deliberate false postcondition, require `notProved` plus a residual
 showing the unmet condition. An error or inconclusive result is not mutation
 evidence. Account for every accepted submission: stopping the local process
@@ -117,7 +127,8 @@ does not by itself prove that its server task stopped.
 ## Recording prove.sh
 
 `prove.sh` is executable evidence, not a summary. It must call the global
-`kprover` CLI with the same session and controls used for the final run. Retain
+`prover-client` CLI with the same session and controls used for the final run.
+Retain
 the associated task evidence. Never start a new session automatically inside
 the script to bypass an attempt limit. Never reduce it to a process exit check,
 and never use a depth bound in its final positive proof.

@@ -27,8 +27,11 @@ In particular, check total functions for complete guarded coverage and check
 equations for overlap. A simplification rule is a trusted equation wherever its
 guard applies; prover success does not establish that equation's truth.
 
+Parenthesize Boolean comparisons: `A andBool B ==Bool false` parses as
+`(A andBool B) ==Bool false`. Prefer `notBool B`.
+
 Use `[simplification]` rules for algebraic facts the symbolic simplifier must
-apply. Keep ordinary helper rules and functions in the kompiled definition.
+apply. Keep ordinary helper rules and functions in the verification module.
 A proof module may contain claims and simplification rules, but not ordinary
 rules:
 
@@ -59,6 +62,7 @@ claim [loop-inv]:
 
 ## Claim labels
 
-Use `kprover prove --help` for label spelling, claim selection, and filtering
+Use `prover-client prove --help` for label spelling, claim selection, and
+filtering
 errors. See [writing-spec](../writing-spec/SKILL.md#the-two-claims-in-speck)
 for claim reuse attributes.

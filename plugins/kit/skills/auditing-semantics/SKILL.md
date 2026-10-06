@@ -84,7 +84,7 @@ TARGET: writing-semantics      (FAIL only)
 REASON: <one sentence>
 ```
 
-BLOCKED means your instruments failed — a broken toolchain or
+BLOCKED means your instruments failed — a broken Prover connection or
 exhausted resources is an infrastructure problem, never evidence
 against the semantics.
 

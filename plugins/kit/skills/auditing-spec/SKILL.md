@@ -30,6 +30,9 @@ against the drafted claims:
   intent.
 - Check the full input domain is covered: no silent narrowing, and no
   finitely-many-sizes substitute for a symbolic unbounded domain.
+- Check every `requires` conjunct that excludes contract inputs has an
+  executed `prover-client run` witness, and that operators were read from the
+  semantics rules rather than their symbols.
 - Where the contract is underdetermined, check each chosen reading
   against [reading-the-contract.md](../shared/reading-the-contract.md)
   and confirm `SCOPE.md` records it. An unstated reading is a finding

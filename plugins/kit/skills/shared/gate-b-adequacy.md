@@ -24,6 +24,17 @@ examples, or bounded unrollings do not complete the required target proof unless
 the source contract has the same bound. They may be reported as sound partial
 progress under `SOUND-BUT-LIMITED`.
 
+The program's own non-termination is never a reason to narrow. A claim is
+partial correctness, so it holds on every input where the program runs
+forever. Keep inputs on which you expect the program to diverge, or to skip a
+loop, in the domain. When part of the domain behaves differently, cover it
+with its own claim under a disjoint `requires`. Before excluding any input the
+contract allows, run the program on one such input with `prover-client run` and
+keep
+the result; an exclusion without that witness is narrowing. If the semantics
+rejects concrete runs, the witness is a proved claim showing the program's
+behavior on that input, such as one pass of the loop body.
+
 Domain narrowing means restricting which inputs or structures the theorem
 covers. It does NOT include, and must not be conflated with:
 
