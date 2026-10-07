@@ -20,6 +20,10 @@ and `prover-client <command> --help` for arguments, examples, settings, and
 results.
 For the nested session command, use `prover-client session start --help`.
 
+Before the first live KIT task, including a standalone run, validation, proof,
+or audit, follow the
+[resource-limit introduction](../using-kit/SKILL.md#resource-limits).
+
 | Command | When it helps |
 |---|---|
 | `prover-client config` | Inspect the endpoint and effective resource limits |

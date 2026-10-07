@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-base=https://github.com/nlp-research-rosu/kit-plugin/releases/download/v0.1.5
+base=https://github.com/nlp-research-rosu/kit-plugin/releases/download/v0.1.6
 case "$(uname -s)-$(uname -m)" in
   Darwin-arm64) asset=prover-client-darwin-arm64.tar.gz ;;
   Darwin-x86_64) asset=prover-client-darwin-x64.tar.gz ;;
@@ -10,7 +10,7 @@ case "$(uname -s)-$(uname -m)" in
   *) echo "prover-client: unsupported platform $(uname -s)/$(uname -m)" >&2; exit 1 ;;
 esac
 
-destination=${KPROVER_INSTALL_DIR:-"${HOME}/.local/bin"}
+destination=${PROVER_CLIENT_INSTALL_DIR:-"${HOME}/.local/bin"}
 mkdir -p "$destination"
 destination=$(cd "$destination" && pwd)
 marker="$destination/.prover-client.sha256"
@@ -57,7 +57,7 @@ quote() {
   fi
   printf "'%s'" "$(printf '%s' "$quoted" | sed "s/'/'\\\\''/g")"
 }
-env_dir=${XDG_CONFIG_HOME:-"$HOME/.config"}/kprover
+env_dir=${XDG_CONFIG_HOME:-"$HOME/.config"}/prover-client
 mkdir -p "$env_dir"
 env_dir=$(cd "$env_dir" && pwd)
 quoted_destination=$(quote "$destination")
@@ -88,7 +88,7 @@ case "${login_shell##*/}" in
     printf 'if not contains -- %s $PATH\n  set -gx PATH %s $PATH\nend\n' \
       "$quoted_destination" "$quoted_destination" > "$env_dir/env.fish"
     source_line="source $(quote "$env_dir/env.fish" fish)"
-    add_to_profile "${XDG_CONFIG_HOME:-$HOME/.config}/fish/conf.d/kprover.fish"
+    add_to_profile "${XDG_CONFIG_HOME:-$HOME/.config}/fish/conf.d/prover-client.fish"
     ;;
   sh|dash|ksh|ash) add_to_profile "$HOME/.profile" ;;
   *) echo "prover-client: add $destination to PATH in your $login_shell configuration"; exit 0 ;;

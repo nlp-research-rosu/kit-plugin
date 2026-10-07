@@ -1,8 +1,8 @@
 param(
-  [string]$InstallDir = "$env:LOCALAPPDATA\IntentComputing\Kprover\bin"
+  [string]$InstallDir = "$env:LOCALAPPDATA\IntentComputing\ProverClient\bin"
 )
 $ErrorActionPreference = "Stop"
-$BaseUrl = "https://github.com/nlp-research-rosu/kit-plugin/releases/download/v0.1.5"
+$BaseUrl = "https://github.com/nlp-research-rosu/kit-plugin/releases/download/v0.1.6"
 
 $arch = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture
 $asset = switch ($arch) {

@@ -47,6 +47,20 @@ initiating prompt states a level, use it. Otherwise ask the human.
 If nobody can answer — a non-interactive run — assume maximum
 automation and never wait on a reply.
 
+## Resource limits
+
+Before the first live KIT task in a conversation, including a concrete run,
+validation, proof, or audit, run
+`prover-client config` and briefly show the effective proof-attempt limit,
+validation and concrete-run limits, and task timeout in human-readable units.
+Do this even when the CLI is already installed. Read defaults from
+`prover-client config --help`; report configured values when they differ.
+Explain that one proof attempt is a server-accepted submission, which may
+contain several claims. Each session has separate used counters; the settings
+apply to all sessions using that configuration. No manual setup is needed to
+keep the current settings. Do not repeat the introduction unless settings
+change or the user asks.
+
 Use the timeout shown by `prover-client config` for run, validate, and prove
 commands, including audit tasks. For proofs that time out, follow
 [proving-spec — Resource caps](../proving-spec/SKILL.md#resource-caps).
@@ -111,8 +125,13 @@ REASON: <one sentence>
 
 Start one bounded session before construction and reuse its ID for concrete
 runs, validation, proofs, and every repair attempt. When an attempt limit is
-exhausted, stop live work and ask whether the user wants to raise that limit,
-stating its current value and the proposed value. If approved, edit the
+exhausted, stop live work and immediately tell the user which operation reached
+its limit, its used count and configured maximum, and what work remains
+unfinished.
+Explain that the limit stopped further attempts; it does not establish that
+a claim is false or a proof is stuck. Ask whether the user wants to raise that
+limit, stating its current value, the proposed value, and that the change
+affects other sessions using the same configuration. If approved, edit the
 corresponding limit in `config.toml` yourself, confirm it with
 `prover-client config`, and continue in the same session with used counters
 unchanged. Do not ask the user to edit the file or assume they chose the

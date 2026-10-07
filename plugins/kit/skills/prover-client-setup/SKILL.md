@@ -61,3 +61,7 @@ retrying
 an expired connection.
 
 Report an exact CLI error instead of falling back when a server check fails.
+
+After setup succeeds, introduce the effective
+[resource limits](../using-kit/SKILL.md#resource-limits) if they have not already
+been explained in this conversation.
