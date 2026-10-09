@@ -6,45 +6,18 @@ workflow rules. Detailed CLI usage lives in the executable's help.
 ## Shell setup
 
 Live mode requires the global `prover-client` CLI and a reachable Prover server.
-Locate the executable on `PATH`, check server health, and inspect the semantics
-registry using the commands below. If setup is incomplete, use
-[prover-client-setup](../prover-client-setup/SKILL.md), then retry.
-
-Treat a failed health check as an infrastructure problem.
+Locate the executable on `PATH`. If it is missing or KIT needs first-time
+setup, use [kit-onboarding](../kit-onboarding/SKILL.md). Otherwise proceed with
+the requested operation using the saved key. Handle authentication or
+permission errors from the command response with
+[kit-help](../kit-help/SKILL.md#connection).
 
 ## CLI contract
 
-`prover-client` is the only live K client. Read `prover-client --help` for the
-command tree
-and `prover-client <command> --help` for arguments, examples, settings, and
-results.
-For the nested session command, use `prover-client session start --help`.
-
-Before the first live KIT task, including a standalone run, validation, proof,
-or audit, follow the
-[resource-limit introduction](../using-kit/SKILL.md#resource-limits).
-
-| Command | When it helps |
-|---|---|
-| `prover-client config` | Inspect the endpoint and effective resource limits |
-| `prover-client login` | Connect through the browser without exposing the API key |
-| `prover-client health` | Check whether live verification is available |
-| `prover-client semantics` | List server-supported language revisions |
-| `prover-client semantics fetch` | Download shared semantics sources for inspection |
-| `prover-client run` | Check the program's concrete behavior under that definition |
-| `prover-client validate` | Catch source and module errors before proving |
-| `prover-client session start` | Create a session and locate its working directory |
-| `prover-client session show` | Inspect a session's pin, workspace, and used counters |
-| `prover-client prove` | Submit a proof attempt or inspect a stuck claim |
-
-Use the CLI's structured result for workflow decisions. `exhausted` is terminal
-for the entire live KIT workflow until the user approves a higher limit.
-Do not reinterpret it as BLOCKED or an instrument failure, and do not spawn or
-continue agents or submit another live task while approval is pending.
-In a non-interactive run, where nobody can answer, deliver the last proved
-sources (or the best draft, marked unproved) and report `exhausted`.
-Limit increases, session handoffs, and reset rules live in
-[using-kit](../using-kit/SKILL.md#verdicts-and-routing).
+`prover-client` is the only live K client. For command usage, configuration
+and resource limits, follow [kit-help](../kit-help/SKILL.md). Use its command
+reference for `health` and `semantics` during setup. Use the CLI's structured
+results for workflow decisions.
 
 ## Semantics descriptor
 
@@ -63,7 +36,7 @@ the
 session's project directory, not an absolute path.
 
 For a clean-room audit, start another session for the same semantics ID and
-confirm its repository and commit match the construction session. A changed
+confirm its semantics ID and commit match the construction session. A changed
 server revision blocks that replay; do not silently audit different semantics.
 Never manually replace the pin, edit downloaded sources, or upload bundled
 semantics. If no
@@ -88,8 +61,7 @@ admitted without proof and is available to callers only through
 path; a failing leaf yields `notProved`, while a bounded leaf without a
 failure yields `inconclusive`. Remove `--depth` for the final positive proof.
 
-Do not start a replacement session, change directories, or delete state to
-bypass a limit. Record assumed claims in the trust ledger under the
+Record assumed claims in the trust ledger under the
 [soundness contract](proof-extension-soundness.md); command help explains how
 to select claims and declare assumptions.
 
@@ -124,9 +96,7 @@ does not by itself prove that its server task stopped.
 - Validate to separate source or module failures from proof behavior.
 - Isolate claims and inspect bounded residuals when a proof stalls; see
   [bounded inspection](../proving-spec/SKILL.md#symptom-router-and-bounded-inspection).
-- Choose resource limits under the
-  [resource caps](../proving-spec/SKILL.md#resource-caps) doctrine; a timeout is
-  a diagnosis, not an automatic retry signal.
+- For task timeouts, follow [kit-help](../kit-help/SKILL.md#task-timeouts).
 
 ## Recording prove.sh
 

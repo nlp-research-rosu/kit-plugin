@@ -204,26 +204,19 @@ After editing `verification.k`, submit another attempt under the
 
 ---
 
-## Resource caps
+## Proof progress
 
-Use the timeout shown by `prover-client config`. It limits each backend task,
-including compilation and proof execution. See `prover-client config --help`
-for settings and cancellation behavior.
+For configured limits and timeout changes, follow
+[kit-help](../kit-help/SKILL.md#task-timeouts).
 
 `prover-client prove` polls Prover automatically and updates
 `proof-NNN/result.json`. Keep the command running and read `task.metrics`
 in that file to check progress when metrics are available. They may stay
 unchanged while the backend is still working.
 
-If a proof reaches the time limit before finishing, you may increase
-`task_timeout_seconds` in `config.toml` and retry. Do not change the timeout
-because a completed task returned `notProved`. A timeout alone does not
-mean the claim is false or the prover is stuck.
-
 Check the saved result before retrying. If the proof keeps repeating
 states or unfolding a helper, use the diagnostics below to find the cause.
-Depth-bounded diagnostics use the same configured timeout; see
-`prover-client prove --help` for their options.
+Use `prover-client prove --help` for depth-bounded diagnostic options.
 
 ### Under a wall-clock limit
 
@@ -236,8 +229,6 @@ recover:
   aside as the proved snapshot. Deliver files byte-identical to the latest
   snapshot. Make no edit after the last proved check; if an edit cannot be
   proved again before the deadline, restore the snapshot.
-- If `task_timeout_seconds` exceeds the time left, less what delivery
-  needs, lower it in `config.toml` before submitting.
 - After a cap fires, and before editing claims, run the program with
   `prover-client run` on inputs that make the stuck loop run zero, one, and two
   times; check the claim's right-hand side against each final state. Runs

@@ -1,6 +1,6 @@
 ---
 name: using-kit
-description: 'Use when asked to verify a program with the K framework — proving partial correctness, formalizing a language in K, writing K specs or proofs. Orchestrates the construction-and-audit pipeline via subagent dispatch, and routes one-off K questions to the owning skill.'
+description: 'Use KIT to formally verify programs, write specifications and proofs, and audit results. Orchestrates the construction-and-audit pipeline and routes one-off verification questions to the owning skill.'
 ---
 
 ## What this kit proves
@@ -29,9 +29,9 @@ Keep three activities distinct:
 
 Live verification is the default. Load and run
 [running-k.md — Shell setup](../shared/running-k.md#shell-setup),
-which locates the global `prover-client` CLI and probes server health. When it
-succeeds, stay live and use only that CLI. If setup is incomplete, route to
-`prover-client-setup` before deciding Prover is unavailable.
+to locate the global CLI and proceed with the requested operation.
+Use only that CLI for live work. If setup is incomplete, use
+[kit-onboarding](../kit-onboarding/SKILL.md) before deciding Prover is unavailable.
 If Prover remains unavailable, stop as BLOCKED
 and report the exact error.
 
@@ -46,24 +46,6 @@ stopping (rerolls, alternative attack angles at each defect). If the
 initiating prompt states a level, use it. Otherwise ask the human.
 If nobody can answer — a non-interactive run — assume maximum
 automation and never wait on a reply.
-
-## Resource limits
-
-Before the first live KIT task in a conversation, including a concrete run,
-validation, proof, or audit, run
-`prover-client config` and briefly show the effective proof-attempt limit,
-validation and concrete-run limits, and task timeout in human-readable units.
-Do this even when the CLI is already installed. Read defaults from
-`prover-client config --help`; report configured values when they differ.
-Explain that one proof attempt is a server-accepted submission, which may
-contain several claims. Each session has separate used counters; the settings
-apply to all sessions using that configuration. No manual setup is needed to
-keep the current settings. Do not repeat the introduction unless settings
-change or the user asks.
-
-Use the timeout shown by `prover-client config` for run, validate, and prove
-commands, including audit tasks. For proofs that time out, follow
-[proving-spec — Resource caps](../proving-spec/SKILL.md#resource-caps).
 
 ## The pipeline
 
@@ -124,20 +106,8 @@ REASON: <one sentence>
   BLOCKED as a hard-blocker candidate.
 
 Start one bounded session before construction and reuse its ID for concrete
-runs, validation, proofs, and every repair attempt. When an attempt limit is
-exhausted, stop live work and immediately tell the user which operation reached
-its limit, its used count and configured maximum, and what work remains
-unfinished.
-Explain that the limit stopped further attempts; it does not establish that
-a claim is false or a proof is stuck. Ask whether the user wants to raise that
-limit, stating its current value, the proposed value, and that the change
-affects other sessions using the same configuration. If approved, edit the
-corresponding limit in `config.toml` yourself, confirm it with
-`prover-client config`, and continue in the same session with used counters
-unchanged. Do not ask the user to edit the file or assume they chose the
-configured value. Never create a replacement session to bypass the limit.
-In non-interactive runs, deliver instead; see
-[running-k.md](../shared/running-k.md#cli-contract).
+runs, validation, proofs, and every repair attempt. For an exhausted limit,
+follow [kit-help — Attempt limits](../kit-help/SKILL.md#attempt-limits).
 The final proof audit uses its own clean-room workspace and session for
 replay and negative probes, never for construction repairs or extra attempts.
 When handing control back to the user, retain session IDs and evidence paths
@@ -180,6 +150,8 @@ For a question that is not a full pipeline run, route directly:
 
 | Request | Open |
 |---|---|
+| Install or connect KIT | [kit-onboarding](../kit-onboarding/SKILL.md) |
+| KIT settings, CLI usage or resource limits | [kit-help](../kit-help/SKILL.md) |
 | Prepare a candidate semantics for a future Prover release | `writing-semantics` |
 | State a theorem, derive an invariant or summary | `writing-spec`, [deriving-invariants.md](../shared/deriving-invariants.md) |
 | Prove a spec's claims, or make a stuck proof pass | `proving-spec` |

@@ -1,6 +1,6 @@
 {
   "name": "kit",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Verify programs and independently audit the results.",
   "author": {
     "name": "Grigore Rosu and the Formal Verification Kit contributors",
@@ -10,15 +10,15 @@
   "repository": "https://github.com/nlp-research-rosu/kit-plugin",
   "license": "MIT",
   "keywords": [
-    "k-framework",
     "formal-verification",
-    "kprove",
     "program-verification",
     "skills"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "KIT",
+    "composerIcon": "./assets/kit-logo.png",
+    "logo": "./assets/kit-logo.png",
     "shortDescription": "Verify programs with independent audits.",
     "longDescription": "The KIT plugin bundles verification skills and the Prover Client CLI. Prover Client connects to Prover, the remote server, to verify programs with independent audits.",
     "developerName": "Grigore Rosu and the Formal Verification Kit contributors",

@@ -1,15 +1,13 @@
 {
   "name": "kit",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Verify programs and independently audit the results.",
   "author": {
     "name": "Grigore Rosu and the Formal Verification Kit contributors"
   },
   "license": "MIT",
   "keywords": [
-    "k-framework",
     "formal-verification",
-    "kprove",
     "program-verification",
     "skills"
   ],
