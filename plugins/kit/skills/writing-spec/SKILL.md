@@ -45,7 +45,43 @@ intended property.
 
 Before drafting claims, write `SCOPE.md` beside `spec.k`. The spec
 auditor reads it from disk — an unstated reading or silently omitted
-cell is an audit finding, not a stylistic choice. Record five items:
+cell is an audit finding, not a stylistic choice.
+
+### Plain-language opening
+
+Make `## Property in plain language` the first section after the title,
+before technical scope details. Before submitting a K specification to the
+prover, describe each property checked in this section so the reader can
+understand it without reading the formal spec.
+
+Use ASD-STE100 writing principles: short sentences, direct statements,
+consistent terms, and simple words. Do not use K notation or undefined
+technical terms. Explain the permitted inputs, required result and state
+changes, and important conditions or exclusions. Describe the submitted
+claims, not a stronger intended property. State that termination is not
+proved when the claims establish only partial correctness. Update the
+description whenever claims or summary definitions change.
+
+For example, the opening for a summation property could be:
+
+```markdown
+# Verification scope
+
+## Property in plain language
+
+The input is a whole number that is zero or greater.
+The program adds all numbers from 1 through the input number.
+If the program finishes, it stores this sum.
+This check does not prove that the program will finish.
+
+## Program boundary
+
+[Continue with the technical scope details.]
+```
+
+### Technical scope
+
+After the opening, record five items:
 
 | Item | Record |
 |---|---|

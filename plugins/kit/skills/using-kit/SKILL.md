@@ -32,6 +32,7 @@ Live verification is the default. Load and run
 to locate the global CLI and proceed with the requested operation.
 Use only that CLI for live work. If setup is incomplete, use
 [kit-onboarding](../kit-onboarding/SKILL.md) before deciding Prover is unavailable.
+Before live work, check for CLI updates.
 If Prover remains unavailable, stop as BLOCKED
 and report the exact error.
 

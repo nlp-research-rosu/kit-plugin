@@ -25,6 +25,12 @@ pipeline; after proving it costs the whole proof effort.
 Work through the [Gate B obligations](../shared/gate-b-adequacy.md)
 against the drafted claims:
 
+- Check that `SCOPE.md` starts with `## Property in plain language`
+  after its title. Check each description against the submitted claims and
+  summary definitions using the
+  [plain-language opening requirements](../writing-spec/SKILL.md#plain-language-opening).
+  Missing descriptions, unreadable wording, or descriptions that overstate
+  the checked property are findings.
 - Restate the formal precondition and postcondition in plain language
   and compare them with the source contract, examples, and stated
   intent.
@@ -77,6 +83,9 @@ phrase, the formal term, and a concrete input where they part ways.
 A faithfulness finding needs the input where the equations produce the
 wrong value. Without a witness, record the narrower evidence gap
 instead of failing the stage.
+
+For a missing, misplaced, or unreadable plain-language opening, cite the
+section order or wording as the witness.
 
 ## Unavailable Prover
 

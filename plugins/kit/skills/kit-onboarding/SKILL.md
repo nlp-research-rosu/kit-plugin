@@ -32,8 +32,8 @@ Get-Command prover-client
 prover-client --version
 ```
 
-If both commands succeed, continue with the connection step. If the executable
-is missing, or the user asks to update it, use the released installer below.
+Check for CLI updates using the released installer below, even if the CLI
+is already installed.
 
 On macOS or Linux, install or update with:
 
