@@ -210,7 +210,7 @@ For configured limits and timeout changes, follow
 [kit-help](../kit-help/SKILL.md#task-timeouts).
 
 `prover-client prove` polls Prover automatically and updates
-`proof-NNN/result.json`. Keep the command running and read `task.metrics`
+`proof-NNN/result.json`. Keep the command running and read `metrics`
 in that file to check progress when metrics are available. They may stay
 unchanged while the backend is still working.
 

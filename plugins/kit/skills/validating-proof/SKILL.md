@@ -175,13 +175,13 @@ task against the selected semantics, following
 [proof submission](../shared/running-k.md#proof-submission). Use its
 distinct spec path and module.
 
-The mutated proof must exit non-zero with `notProved` and a residual showing
-the unmet condition. Read the final `RESIDUAL <KAST JSON>` line in saved
-stdout and confirm it represents a reachable failure of the mutated
-postcondition.
+The mutated proof must exit non-zero with `notProved` and stdout evidence
+showing the unmet condition. Read the saved report as described in
+[reading the result](../shared/running-k.md#reading-the-result) and confirm
+it represents a reachable failure of the mutated postcondition.
 
 Record the exact mutation, satisfiable witness, command, exit code, and
-residual.
+failure evidence.
 If the mutation closes, investigate the precondition, result constraint, and
 whether the relevant claims were exercised before reporting success.
 

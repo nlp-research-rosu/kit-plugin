@@ -58,8 +58,8 @@ Never use a prior task result as evidence for edited sources.
 PyK APR accepts both `--depth` and `--trusted`. A trusted claim is
 admitted without proof and is available to callers only through
 `[depends(...)]`. A depth bound limits rewrite steps along each execution
-path; a failing leaf yields `notProved`, while a bounded leaf without a
-failure yields `inconclusive`. Remove `--depth` for the final positive proof.
+path; a failing or bounded leaf yields `notProved`.
+Remove `--depth` for the final positive proof.
 
 Record assumed claims in the trust ledger under the
 [soundness contract](proof-extension-soundness.md); command help explains how
@@ -67,27 +67,26 @@ to select claims and declare assumptions.
 
 ## Reading the result
 
-Require `task.result.outcome` of `proved` and a final tool exit code of 0,
-then inspect the submitted claim selection and saved stdout. PyK APR reports
-`PROOF PASSED: <label>` for proved claims and `PROOF TRUSTED: <label>` for
-admitted ones.
+Require `task.result` of `proved` and a final tool exit code of 0,
+then inspect the submitted claim selection and each claim's PyK summary in
+saved stdout. Check which claims were admitted with `--trusted`.
 An admitted claim is an assumption, not a proved claim. Closure under the
 supplied theory remains insufficient for validation; follow the proof audit
 for soundness, adequacy, and non-vacuity.
 
 The CLI saves the server's `/tasks/{id}/stdout` response as `stdout` in
-`proof-NNN/result.json`. `task.result` has no residual field. When an APR
-proof ends with unproved states, the last stdout line is
-`RESIDUAL <KAST JSON>`; parse the KAST JSON after that prefix. It may combine
-several failing, pending, or depth-bounded leaves, so it is not necessarily a
-counterexample. Read stderr and the task result alongside stdout.
+`proof-NNN/result.json`. PyK APR prints each claim's summary, pending node
+IDs, and failing nodes' reasons and path conditions, including after a
+timeout. Other backends emit their residual as KAST in stdout; parse it
+without a recursion limit. Unproved states are not necessarily
+counterexamples. Read stderr and the task result alongside stdout.
 
 An internal exception from a prove task that validated cleanly is a failed
 proof whose residual could not be printed, not a syntax problem. Do not bisect
 the sources; check the claims' boundary cases and inspect a focused claim.
 
-For a deliberate false postcondition, require `notProved` plus a residual
-showing the unmet condition. An error or inconclusive result is not mutation
+For a deliberate false postcondition, require `notProved` plus stdout evidence
+showing the unmet condition. An error or timeout is not mutation
 evidence. Account for every accepted submission: stopping the local process
 does not by itself prove that its server task stopped.
 
