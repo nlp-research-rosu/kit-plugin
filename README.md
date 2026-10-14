@@ -19,6 +19,22 @@ claude plugin marketplace add nlp-research-rosu/kit-plugin
 claude plugin install kit@kit-plugin
 ```
 
+Other agents and harnesses:
+
+KIT uses the [Agent Skills format](https://agentskills.io). Install the skills
+with the [skills CLI](https://github.com/vercel-labs/skills), which supports
+agents such as Cursor, Gemini CLI and Pi. With Node.js 22.20 or newer, run
+from your project directory:
+
+```bash
+npx skills add nlp-research-rosu/kit-plugin --skill '*'
+```
+
+Keep `--skill '*'` to install the complete collection, including the shared
+references that KIT's skills depend on. Add `--agent <agent-name>` to select
+a target explicitly. The agent needs file read/write access, shell execution
+and network access to Prover.
+
 Start a new agent session after installation.
 
 ## Use KIT with your agent
@@ -57,6 +73,8 @@ Claude Code:
 claude plugin marketplace update kit-plugin
 claude plugin update kit@kit-plugin
 ```
+
+For skills CLI installations, rerun the installation command above.
 
 Start a new agent session and ask it to update Prover Client. Plugin updates
 and CLI installation are separate operations.
