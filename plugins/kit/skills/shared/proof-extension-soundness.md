@@ -57,27 +57,18 @@ Operational bridges carry a heavy admission precondition; see the
 
 ## Gate A repair transition
 
-Gate A PASS continues to Gates B and C. Gate A failure is a repair
-signal, not a terminal result. Every Gate A failure takes this
-back-edge unless an enumerated, evidenced hard blocker prevents
-further repair. Within the one orchestrated run:
+Gate A failure is a repair signal, not a successful proof state. Remove or
+disable an unjustified extension and repair the proof using fixed semantics
+and justified theory. Inspect the genuine residual when it helps locate the
+defect. Recheck affected claims and review obligations after the repair;
+unaffected evidence can be reused when its inputs and assumptions still match.
 
-1. the proof audit reports FAIL naming the owning stage;
-2. the construction agent must remove or disable every offending extension
-   and rerun without them to recover the genuine residual — a passing result
-   obtained through an offending extension is not a usable proof
-   state; and
-3. the construction is repaired and rebuilt, a passing result recovered, and
-   the proof audit rerun.
-
-A rollback is part of the one orchestrated run, not a retry or a
-fresh attempt.
-
-Only after repair attempts encounter an evidenced hard blocker may the workflow
-produce terminal `Incomplete work`. Hard blockers are unavailable required tools
-or inputs, an out-of-scope fixed-semantics language gap, repeated external
-backend or resource failure, or inconsistent requirements. Record the evidence
-and the repair attempts that exposed the blocker.
+Repairs stay within the existing session and resource limits. Stop when the
+user stops the work, the budget is exhausted, or an evidenced hard blocker
+prevents progress. Hard blockers include unavailable required tools or inputs,
+an out-of-scope fixed-semantics language gap, repeated external backend or
+resource failure, or inconsistent requirements. Record the unresolved
+obligations and evidence when reporting `Incomplete work`.
 
 A difficult proof is not a hard blocker. A slower safe encoding is not a hard
 blocker. Repair that requires redesign is not a hard blocker. A passing result
@@ -86,9 +77,10 @@ usable proof state.
 
 ## Proof-extension record
 
-Record each extension during construction. Validation must rebuild this
-inventory
-from the actual proof files rather than trusting the construction record.
+Record each extension's applicable justification in the proof artifacts.
+Review the inventory against the actual files rather than trusting a
+construction narrative. The fields below guide that review; reference
+existing evidence instead of duplicating it in a separate stage report.
 
 | Field | Required content |
 |---|---|
@@ -104,24 +96,52 @@ from the actual proof files rather than trusting the construction record.
 | Value justification | Defining equations, connection theorem, or external contract that fixes each result-bearing value |
 | Justification | Derivation, auxiliary theorem, or named trust assumption |
 | Dependents | Claims whose closure relies on it |
-| Control validation | Fixed-versus-extended comparison and operational-sensitivity evidence for control-affecting bridges |
-| Value validation | Fixed-versus-extended witnesses and rejected opposite interpretations for result-bearing abstractions |
-| Validation | Gate checks and reproducible evidence |
+| Control validation | Connection theorem and any selected operational-sensitivity checks for control-affecting bridges |
+| Value validation | Value justification and any selected fixed-versus-extended witnesses for result-bearing abstractions |
+| Validation | Gate checks, reproducible evidence, and unresolved gaps |
 
 ## Decide the report status
 
-Record PASS or FAIL for every completed gate. Choose the headline status only
-after the Gate A repair transition reaches PASS or an evidenced hard blocker:
+Record PASS or FAIL for every completed gate and identify unchecked or blocked
+obligations explicitly. Gate A must pass before issuing a successful proof
+status; otherwise report `Incomplete work` and continue repair when possible.
 
 | Result | Status |
 |---|---|
-| Gate A remains blocked after evidenced repair attempts | Incomplete work; do not issue a successful proof report |
+| Gate A fails or lacks evidence when work stops | Incomplete work; do not issue a successful proof report |
 | Gate A passes and Gate B fails | SOUND-BUT-LIMITED |
 | Gates A and B pass and Gate C fails | FORMALLY-SOUND-UNVALIDATED |
 | Gates A, B, and C pass | VALIDATED |
 
 Always report later-gate failures even when an earlier gate determines the
 headline status.
+
+## Review assurance
+
+Evidence review is required; independent auditing is optional. Same-agent
+review checks the actual files and per-claim evidence against the original
+scope. An independent reviewer uses a separate context and judges those
+artifacts without relying on the constructor's reasoning.
+
+Reuse successful proof evidence by default when the program, claims, proof
+extensions, semantics ID and revision, submission controls, and assumptions
+match the reviewed artifacts. A new reviewer or audit stage does not itself
+justify another proof submission.
+
+Replay only when the user requests it, relevant inputs changed, or retained
+evidence is missing or insufficient to resolve a specific reproducibility
+question. Before submitting, identify the reason and scope the replay to the
+affected claims and required dependencies.
+
+Choose concrete checks, negative controls, or differential tests when they
+resolve a specific uncertainty or the user requests them. They are not
+universal prerequisites. A missing justification remains a gap even when a
+diagnostic check is omitted; finite tests never replace a required theorem.
+
+`VALIDATED` means the recorded gate obligations pass under the stated trust
+boundary. It does not imply independent review, replay, or negative controls.
+Report the review mode, evidence used, checks performed, and important checks
+not performed so readers can distinguish those assurance levels.
 
 ## Red flags — stop before reporting success
 

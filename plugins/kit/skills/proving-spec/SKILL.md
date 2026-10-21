@@ -1,6 +1,6 @@
 ---
 name: proving-spec
-description: 'Use when spec.k exists and its claims must be proved — from the first proof submission through making a stuck proof pass: hangs, divergence, memory exhaustion, WarnStuckClaimState, or a non-zero exit.'
+description: 'Construct K proofs or diagnose stuck, failing, or resource-limited Prover claims.'
 ---
 
 ## Artifact contract
@@ -38,89 +38,41 @@ The prover closes a claim by rewriting the LHS to the RHS. It gets stuck when:
   `rule` statements in the spec module are a K compiler error; only `claim`s and
   `[simplification]` rules are allowed there.
 
-The repair loop below addresses each of these systematically.
+Choose the diagnostic that fits the observed failure; the techniques below
+are options, not a fixed sequence.
 
 ---
 
 ## Before adding a proof extension
 
-Before adding any proof extension, work through the
-[soundness contract](../shared/proof-extension-soundness.md) and
-[Gate A obligations](../shared/gate-a-soundness.md). For the proposed
-change, answer these questions from the residual:
+Use the [soundness contract](../shared/proof-extension-soundness.md) to
+classify and justify the extension. The
+[Gate A obligations](../shared/gate-a-soundness.md) cover execution,
+value, state, binding, and control fidelity. Record the applicable
+justification and dependencies alongside the proof evidence.
 
-1. What fixed-semantics step or mathematical obligation is missing?
-2. Which extension class applies?
-3. **Does this replace execution?** If yes, identify the exact binding, body,
-   evaluation steps, control behavior, and state footprint being replaced.
-4. What is the complete matched context, including the active continuation,
-   control stack, bindings, guards, and framed cells?
-5. Is every frame, wildcard, or omitted cell equally general in the theorem or
-   assumption that supplies the justification domain?
-6. Does the extension introduce abrupt control such as return, frame popping,
-   an exception, or loop control? If so, what proves the same continuation is
-   discarded, preserved, or unwound under fixed semantics?
-7. Does the extension's value affect a branch, result, observable state,
-   exception, or postcondition? If so, what machine-checked connection theorem
-   proves that fixed semantics produces that value over the complete domain?
-8. Does the same fresh or opaque symbol occur in both an operational bridge and
-   a summary or postcondition? That dependency is circular unless independently
-   connected to fixed execution.
-9. What guard makes every new equation true, and do its cases overlap existing
-   equations consistently?
-10. Which claim depends on the extension, and what theorem or named trust
-   assumption justifies it?
-
-Complete the contract's extension record before editing `verification.k`. If a
-program-defined operation cannot be connected to execution, strengthen the
-invariant, add an auxiliary execution claim, route a genuine language-model gap
-to `writing-semantics`, or continue the same-session repair loop below.
-
-Do not introduce a result-bearing oracle to make a residual disappear,
-and never widen a bridge beyond what its supporting theorem proves. The
-admission preconditions and containment obligations live in the
-[Gate A obligations](../shared/gate-a-soundness.md).
+Prefer strengthening an invariant, a truthful summary, or an auxiliary
+execution claim when these address the residual. A genuine fixed-semantics
+gap is a model boundary, not permission to replace program execution with
+an unjustified result-bearing oracle.
 
 ## Gate A repair
 
-When the proof audit fails Gate A with TARGET `proving-spec`, you are
-responsible for repairing the finding recorded in the audit artifact.
-Preserve the current solution and artifacts and repair in place:
-
-1. **First, remove or disable the offending extension.** Do not treat a passing
-   result obtained through that extension as a usable proof state.
-2. Resubmit with the edited verification source, then inspect the genuine
-   residual produced by fixed semantics and the remaining justified theory.
-3. **Prefer fixed-semantics execution** and address the residual without an
-   execution-bypassing rewrite.
-4. **Prove an exact auxiliary execution theorem** before any operational bridge,
-   covering every configuration in the proposed bridge's match domain without
-   importing that bridge.
-5. Strengthen the invariant or use a truthful definitional summary when that
-   expresses the source computation exactly.
-6. If the original intent is broader than the sound theorem currently
-   available, preserve the narrower theorem honestly as partial progress and
-   allow Gate B to report `SOUND-BUT-LIMITED`. When the task requires the full
-   source contract, do not treat finitely many sizes, examples, or bounded
-   unrollings as completion of the required target proof; keep repairing the
-   symbolic theorem, or leave the required target unresolved.
-7. Produce terminal `Incomplete work` only when repair attempts expose an
-   evidenced hard blocker under the shared contract.
-
-After the repaired construction passes, rerun the
-proof audit. A rollback is part of the same run,
-not a retry or a fresh attempt.
+Repair soundness findings under the
+[shared repair contract](../shared/proof-extension-soundness.md#gate-a-repair-transition).
+Preserve useful evidence, remove the unjustified dependency, and recheck
+affected claims and obligations. A narrower theorem can be partial progress;
+it does not complete a request for the full symbolic input domain.
 
 ---
 
 ## Summary functions
 
-The summary functions already exist: the spec stage wrote them in the
-`VERIFICATION-SUMMARIES` module of `verification.k`, and the spec
-audit approved their faithfulness. Your edits go in the `VERIFICATION`
-module. If closing the proof requires changing a definitional equation,
-that is a spec defect, not a proof extension: return to `writing-spec`,
-then repeat the spec audit and all affected downstream checks.
+Summary definitions belong in `VERIFICATION-SUMMARIES`; proof extensions
+belong in `VERIFICATION`. If a repair changes a definitional equation,
+revisit the theorem's meaning and `SCOPE.md` using `writing-spec`, then
+recheck affected claims and adequacy obligations. A separate spec audit
+is optional; changed assumptions invalidate dependent evidence.
 
 **Choose the simplest faithful form the prover can use.** Prefer an equivalent
 closed form when it lies in a solver-supported theory. If no faithful closed
@@ -146,7 +98,7 @@ rule (X +Int Y) ==Int X +Int Z => Y ==Int Z  [simplification]
 ## Invariants and lemmas
 
 The loop-invariant claim in `spec.k` is the loop invariant. When the proof is
-stuck on the invariant's inductive step, you have two options:
+stuck on the invariant's inductive step, common options include:
 
 1. **Strengthen the invariant.** Add a conjunct to the `requires` or express a
    tighter postcondition.
@@ -159,14 +111,10 @@ postcondition (`s |-> S +Int sumTo(N)`) and the summary function definition
 
 ---
 
-## The repair loop
+## Proof construction and repair
 
-```text
-submit proof → read the residual → add one lemma or strengthen invariant → re-run
-```
-
-**Step 1: submit a proof task.** Use `prover-client prove --help` for submission
-details and [running-k.md](../shared/running-k.md) for workflow and evidence
+**Submit and interpret evidence.** Use `prover-client prove --help` for
+submission details and [running-k.md](../shared/running-k.md) for workflow and evidence
 rules. Record the command in `prove.sh`.
 
 An outcome of `proved` with tool exit 0 means the selected claims closed or
@@ -175,18 +123,18 @@ trusted labels under [reading the result](../shared/running-k.md#reading-the-res
 For `notProved`, read the stdout residual and stderr. Always submit under the
 resource caps below.
 
-**Step 2: read the residual.** The residual is the symbolic configuration
+**Read the residual.** The residual is the symbolic configuration
 the prover reached but could not match against the claim's RHS. Extract it
 from stdout as described in the shared result contract, then compare its term
 shape to the RHS. The mismatch locates what is missing.
 
-**Step 3: bound and compare the trace.** Isolate one claim, choose a
-depth that returns promptly, and compare residual configurations at
-nearby increasing bounds using the symptom router below.
+**Inspect a stalled trace when needed.** Isolating a claim and comparing
+residual configurations at nearby depth bounds can reveal where progress
+stops. Use the symptom router below to choose a focused diagnostic.
 
-**Step 4: add one classified change.** Complete the extension checkpoint, then
-add the narrowest guarded lemma, summary equation, auxiliary claim, or invariant
-strengthening that addresses the residual. Resubmit the focused claim.
+**Revise the proof strategy.** Choose a justified lemma, summary equation,
+auxiliary claim, invariant strengthening, or different claim decomposition
+that addresses the evidence. Recheck the affected claims.
 
 Record the extension even when the proof passes; prover success does not
 validate the added theory.
@@ -196,17 +144,17 @@ After editing `verification.k`, submit another attempt under the
 
 **Important hygiene:**
 
-- Prove claims in order: loop invariants first, innermost loop first,
-  then all claims together. An unfiltered run alone does not make claims
+- Prefer proving dependencies first, such as inner-loop invariants before
+  their callers. An unfiltered run alone does not make claims
   available to one another under APR; retain the reuse attributes from
-  [writing-spec](../writing-spec/SKILL.md#the-two-claims-in-speck).
-  A passing loop invariant makes the whole-program proof fast.
+  [writing-spec](../writing-spec/SKILL.md#claim-structure-and-reuse).
+  Check the requested entry claims as well as their supporting claims.
 
 ---
 
 ## Proof progress
 
-For configured limits and timeout changes, follow
+For server timeouts, HTTP request limits, and cancellation, follow
 [kit-help](../kit-help/SKILL.md#task-timeouts).
 
 `prover-client prove` polls Prover automatically and updates
@@ -223,16 +171,16 @@ Use `prover-client prove --help` for depth-bounded diagnostic options.
 When the run itself has a deadline, a stuck task spends time you cannot
 recover:
 
-- Prove focused claims before the unfiltered run, so one stuck task costs
-  one cap, not the session.
+- Consider focused claims before the unfiltered run, so one stuck task costs
+  one server execution limit, not the session.
 - On every `proved`, copy the exact submitted `spec.k` and `verification.k`
   aside as the proved snapshot. Deliver files byte-identical to the latest
   snapshot. Make no edit after the last proved check; if an edit cannot be
   proved again before the deadline, restore the snapshot.
-- After a cap fires, and before editing claims, run the program with
-  `prover-client run` on inputs that make the stuck loop run zero, one, and two
-  times; check the claim's right-hand side against each final state. Runs
-  take seconds and use no attempt budget; another cap costs minutes.
+- If a cap suggests a mismatch between execution and the claim, concrete
+  zero-, one-, and two-iteration cases can expose it cheaply. Use
+  `prover-client run` and compare the final states with the claim; choose
+  another diagnostic when the evidence points elsewhere.
 
 ---
 
@@ -285,8 +233,8 @@ claim without the bound for the final proof.
   `[function]`/`[simplification]`, claim syntax, and labels.
 - [Running K through Prover](../shared/running-k.md) — command discovery and
   evidence rules.
-- `writing-spec` — precedes this skill; produces `spec.k`.
-- `validating-proof` — follows this skill; it rebuilds the
+- `writing-spec` — states or revises `spec.k` and its scope.
+- `validating-proof` — reviews passing evidence; it checks the
   extension inventory from the proof files rather than trusting the construction
   record, then applies Gate A — real-program soundness, Gate B — intent
   adequacy,
@@ -299,6 +247,5 @@ claim without the bound for the final proof.
   and the task statement; on a redo, the failing audit artifact path.
 - Produces: proof extensions in the `VERIFICATION` module, `prove.sh`
   with the exact commands used, and a passing proof run.
-- Record: two sentences — what closed and what theory was added
-  — plus the artifact paths. Do not restate residuals or reasoning;
-  the audit works from the files.
+- Record: what closed, what theory was added, unresolved obligations, and
+  artifact paths. Reuse this evidence in the final report or audit handoff.

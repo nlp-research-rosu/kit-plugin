@@ -1,7 +1,7 @@
 {
   "name": "kit",
-  "version": "0.1.9",
-  "description": "Verify programs and independently audit the results.",
+  "version": "0.1.10",
+  "description": "Formally verify programs against their specifications.",
   "author": {
     "name": "Grigore Rosu and the Formal Verification Kit contributors",
     "url": "https://github.com/nlp-research-rosu"
@@ -19,8 +19,8 @@
     "displayName": "KIT",
     "composerIcon": "./assets/kit-logo.png",
     "logo": "./assets/kit-logo.png",
-    "shortDescription": "Verify programs with independent audits.",
-    "longDescription": "The KIT plugin bundles verification skills and the Prover Client CLI. Prover Client connects to Prover, the remote server, to verify programs with independent audits.",
+    "shortDescription": "Formally verify programs against their specifications.",
+    "longDescription": "Write formal specifications, prove program properties, and assess verification results.",
     "developerName": "Grigore Rosu and the Formal Verification Kit contributors",
     "category": "Productivity",
     "capabilities": [

@@ -21,7 +21,9 @@ results for workflow decisions.
 
 ## Semantics descriptor
 
-Start a session for the supplied language ID before live construction. Read
+Discover available IDs and capabilities with `prover-client semantics`;
+the server registry is authoritative. Start a session for the selected
+language ID before live construction. Read
 its help for project selection, shared source locations, and audit sessions.
 The CLI owns the global `session.json`. Inspect its semantics ID and pinned
 revision with `prover-client session show`. Use `prover-client semantics fetch`
@@ -35,7 +37,7 @@ help defines input paths. `prover-client run --program` takes a path relative to
 the
 session's project directory, not an absolute path.
 
-For a clean-room audit, start another session for the same semantics ID and
+For a clean-room replay, start another session for the same semantics ID and
 confirm its semantics ID and commit match the construction session. A changed
 server revision blocks that replay; do not silently audit different semantics.
 Never manually replace the pin, edit downloaded sources, or upload bundled
@@ -50,9 +52,11 @@ use the semantics and proof command help for diagnostic controls.
 
 ## Proof submission
 
-Validate source structure before attempting proof. A successful validation is
-not proof or non-vacuity evidence. For a failed proof, read the retained
-evidence, repair the K artifacts, and submit in the same construction session.
+Use validation when source structure needs checking before proof; a proof
+task already exercising the same structure need not repeat it. A successful
+validation is not proof or non-vacuity evidence. For a failed proof, read
+the retained evidence, repair the K artifacts, and submit in the same
+construction session.
 Never use a prior task result as evidence for edited sources.
 
 PyK APR accepts both `--depth` and `--trusted`. A trusted claim is
@@ -68,8 +72,9 @@ to select claims and declare assumptions.
 ## Reading the result
 
 Require `task.result` of `proved` and a final tool exit code of 0,
-then inspect the submitted claim selection and each claim's PyK summary in
-saved stdout. Check which claims were admitted with `--trusted`.
+then inspect the submitted claim selection and the selected backend's
+per-claim evidence in saved stdout. Check which claims were admitted with
+`--trusted`.
 An admitted claim is an assumption, not a proved claim. Closure under the
 supplied theory remains insufficient for validation; follow the proof audit
 for soundness, adequacy, and non-vacuity.

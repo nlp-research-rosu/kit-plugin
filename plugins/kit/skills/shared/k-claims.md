@@ -64,5 +64,5 @@ claim [loop-inv]:
 
 Use `prover-client prove --help` for label spelling, claim selection, and
 filtering
-errors. See [writing-spec](../writing-spec/SKILL.md#the-two-claims-in-speck)
+errors. See [writing-spec](../writing-spec/SKILL.md#claim-structure-and-reuse)
 for claim reuse attributes.

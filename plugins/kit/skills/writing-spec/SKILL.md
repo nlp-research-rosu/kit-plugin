@@ -1,6 +1,6 @@
 ---
 name: writing-spec
-description: 'Use when code and its K semantics exist and the theorem must be stated — drafting spec.k reachability claims, the summary functions they reference (VERIFICATION-SUMMARIES), and SCOPE.md. Triggered by "write a spec", "what should the preconditions be", or "draft spec.k".'
+description: 'Draft or revise K reachability claims, summaries, and verification scope for a program.'
 ---
 
 ## Artifact contract
@@ -34,7 +34,7 @@ A K spec states **partial correctness**: *if* the program terminates and the
 precondition holds, then the postcondition holds at termination. It says nothing
 about whether the program terminates; that is a separate liveness question.
 
-Keep three activities distinct (see `using-kit`): **Verification** closes
+Keep three activities distinct: **Verification** closes
 reachability claims under the supplied theory; **Soundness audit** checks proof
 extensions; and **Validation** checks theorem scope and evidence against the
 intended property.
@@ -43,9 +43,9 @@ intended property.
 
 ## Record the scope in SCOPE.md
 
-Before drafting claims, write `SCOPE.md` beside `spec.k`. The spec
-auditor reads it from disk — an unstated reading or silently omitted
-cell is an audit finding, not a stylistic choice.
+Keep `SCOPE.md` beside `spec.k` as the durable record of the target and
+the submitted claims. An unstated reading or silently omitted observable
+cell is a scope gap, not a stylistic choice.
 
 ### Plain-language opening
 
@@ -129,11 +129,9 @@ function inputs/outputs in the ordinary sense.
 
 **Read each operator from the semantics, not from its symbol.** A language
 may give `+`, `<` or `==` a meaning other than the familiar one. Find the rule
-for every operator the program uses, quote its rule in `SCOPE.md`, then
-confirm the reading with `prover-client run` on a small concrete input before
-drafting claims. If the semantics rejects concrete runs, confirm it instead
-with a claim from the loop head through one pass of the body that pins the
-guard variable's new value.
+for operators whose meaning affects the property. Where the behavior is
+uncertain, a small `prover-client run` or a one-step claim can confirm the
+reading. Record consequential model assumptions in `SCOPE.md`.
 
 **Keep `requires` to the contract's input domain.** Never add a conjunct to
 avoid non-termination or to make a loop run zero times; the
@@ -162,13 +160,13 @@ postcondition as the RHS of the state cells directly, without `ensures`:
 
 ---
 
-## The two claims in `spec.k`
+## Claim structure and reuse
 
-A complete spec contains one **entry claim** for the whole program plus one
-**loop-invariant claim per loop**. The single-loop program used throughout this
-kit therefore has exactly two claims; a program with two loops needs three, and
-a nested loop needs its own invariant claim, which the outer loop's proof then
-uses to step over the inner loop.
+Choose claims that cover the requested entry behavior and its proof
+obligations. A common decomposition is an entry claim plus invariant claims
+for loops; nested loops can use inner invariants from the outer proof.
+Multiple entries, helper claims, or another decomposition may fit better.
+The single-loop example below illustrates two claims, not a fixed count.
 
 Give every claim a stable label (`claim [name]:`). PyK APR uses a claim as its
 own circularity only when it has `[circularity]`; a claim uses another claim
@@ -292,24 +290,23 @@ They must also evaluate on concrete arguments: a left-hand side such as
 `f(A, I +Int 1)` never matches a literal, so write `f(A, I)` with a guard
 and `I -Int 1` on the right.
 
-Before handing off, run the
+When checking whether the entry claim matches concrete execution, use the
 [concrete adequacy check](../shared/deriving-invariants.md#concrete-adequacy-check)
-on the entry claim.
+as a diagnostic.
 
 Judge the drafted domain and meaning against the
-[Gate B obligations](../shared/gate-b-adequacy.md) before handing off:
-the spec audit will apply them to the artifacts.
+[Gate B obligations](../shared/gate-b-adequacy.md). These apply whether
+review is integrated with construction or requested as a separate audit.
 
 ---
 
-## Adequacy hand-off
+## Check the drafted theorem
 
-Once `spec.k`, the `VERIFICATION-SUMMARIES` module, and `SCOPE.md` are
-drafted, the spec audit judges adequacy and summary faithfulness
-from the artifacts; do not duplicate those checks here.
-Machine-check the structure with a focused `prover-client validate` task
-even before the proof is expected to close — early parser and module
-errors are cheaper to fix before lemmas exist.
+Review `spec.k`, `VERIFICATION-SUMMARIES`, and `SCOPE.md` together for
+adequacy and summary faithfulness. Use `auditing-spec` for detailed review
+guidance. A focused `prover-client validate` task can catch parser and module
+errors before a proof is ready; a proof run already exercising the same
+structure need not be preceded by duplicate validation.
 
 ---
 
@@ -317,9 +314,9 @@ errors are cheaper to fix before lemmas exist.
 
 - [K functions, claims, and proof modules](../shared/k-claims.md) — claim
   syntax, `requires`/`ensures`, labels, and proof-module restrictions.
-- `proving-spec` — next step after the spec audit passes: adds proof
+- `proving-spec` — adds proof
   extensions to the `VERIFICATION` module and closes the APR claims.
-- `validating-proof` — independently audits proof-extension soundness and
+- `validating-proof` — reviews proof-extension soundness and
   validates intent, trust, and evidence for a passing proof.
 
 ## Dispatch contract

@@ -31,7 +31,7 @@ even if both constructs were intended to describe the same loop.
 ## Diagnosis and repair
 
 1. Check the claim reuse attributes in
-   [writing-spec](../writing-spec/SKILL.md#the-two-claims-in-speck).
+   [writing-spec](../writing-spec/SKILL.md#claim-structure-and-reuse).
 2. Isolate the invariant claim and use
    [bounded inspection](../proving-spec/SKILL.md#symptom-router-and-bounded-inspection).
 3. Compare the complete reached configuration with the claim's left-hand side.

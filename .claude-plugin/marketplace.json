@@ -1,7 +1,7 @@
 {
   "name": "kit-plugin",
   "metadata": {
-    "description": "KIT skills for program verification with Prover and independent audits."
+    "description": "Formally verify programs against their specifications."
   },
   "owner": {
     "name": "Grigore Rosu and the Formal Verification Kit contributors"
@@ -10,8 +10,8 @@
     {
       "name": "kit",
       "source": "./plugins/kit",
-      "version": "0.1.9",
-      "description": "Program verification through Prover Client with independent audits."
+      "version": "0.1.10",
+      "description": "Formally verify programs against their specifications."
     }
   ]
 }

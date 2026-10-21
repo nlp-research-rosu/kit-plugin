@@ -70,8 +70,8 @@ If login is denied, stop setup.
 ## Finish setup
 
 Run `prover-client config` and briefly explain the effective proof, validation
-and concrete-run attempt limits, the task timeout in human-readable units, and
-the configuration path. Use `prover-client config --help` for default values.
+and concrete-run attempt limits and the configuration path. Prover owns
+execution timeouts. Use `prover-client config --help` for default values.
 Distinguish built-in defaults from configured overrides. Each session tracks
 its own attempt counts; configuration changes apply to sessions using that
 configuration. One accepted proof submission can contain several claims.

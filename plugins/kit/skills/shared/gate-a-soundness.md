@@ -70,8 +70,8 @@ Execute it, define the summary truthfully and prove the connection, or reject
 the proposed bridge and follow the Gate A repair transition. Finite tests can
 expose a bad oracle but cannot replace the universal connection theorem.
 
-For program-derived abstractions, use value-sensitivity witnesses independently
-of context and postcondition mutations. Choose satisfiable ground cases with
+For program-derived abstractions, value-sensitivity witnesses can diagnose
+uncertain value connections. Choose satisfiable ground cases with
 distinct fixed-semantics values, compare fixed and bridge-enabled execution,
 and attempt the opposite ground interpretation of the abstraction. Any admitted
 wrong branch, result, or observable state is a Gate A failure.
@@ -103,8 +103,9 @@ or be justified by a theorem quantified over every context it accepts. Rule
 priority can make a bad bridge preempt fixed semantics; it never supplies the
 missing equivalence.
 
-Use an operational-sensitivity mutation independently of A5: materially change
-the displaced execution or an immediate continuation admitted by the bridge.
+An operational-sensitivity mutation can test an uncertain bridge: materially
+change the displaced execution or an immediate continuation admitted by the
+bridge.
 The connection proof must fail or its result must change when fixed execution
 changes. This is separate from a postcondition mutation, which tests whether the
 claim constrains its result but not whether a bridge preserves execution.
@@ -124,5 +125,7 @@ claims or reuse can expose it.
 
 Exhibit a realizable state satisfying the precondition. Confirm that the final
 claim constrains the relevant result or state and that required auxiliary claims
-are exercised. Mutate the result or postcondition to a false alternative and
-require the prover to reject it for a meaningful witness.
+are exercised. If result sensitivity remains uncertain, mutate the result or
+postcondition to a false alternative and inspect whether the prover rejects
+it for a meaningful witness. A mutation is diagnostic evidence, not a
+substitute for checking satisfiability and the claim's result constraint.

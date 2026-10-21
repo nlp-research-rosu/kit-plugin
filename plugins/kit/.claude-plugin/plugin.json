@@ -1,7 +1,7 @@
 {
   "name": "kit",
-  "version": "0.1.9",
-  "description": "Verify programs and independently audit the results.",
+  "version": "0.1.10",
+  "description": "Formally verify programs against their specifications.",
   "author": {
     "name": "Grigore Rosu and the Formal Verification Kit contributors"
   },

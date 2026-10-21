@@ -1,6 +1,6 @@
 ---
 name: kit-help
-description: 'Answer questions about KIT, Prover Client commands, authentication, configuration, saved files and resource limits. Use when an operation reaches an attempt limit or task timeout. For installation or reconnection, use kit-onboarding.'
+description: 'Explain KIT commands, settings, evidence files, attempt limits, and task timeouts.'
 ---
 
 ## Components
@@ -29,6 +29,7 @@ For nested commands, use help such as `prover-client session start --help`.
 | `prover-client session start` | Create a session and locate its working directory |
 | `prover-client session show` | Inspect a session's pin, workspace, and used counters |
 | `prover-client prove` | Submit a proof attempt or inspect a stuck claim |
+| `prover-client task list / show / wait / cancel` | Inspect or recover accepted tasks without resubmitting |
 
 ## Connection
 
@@ -38,6 +39,10 @@ all Prover requests. Run the requested commands and handle authentication or
 permission errors from their responses. Read `prover-client login --help` for
 credential storage and reconnection details; never read credential files into
 agent context.
+
+If polling fails after acceptance, recover the existing task rather than
+resubmitting. Use `prover-client task --help` for retries, reattachment and
+cancellation. Recovery does not consume another attempt.
 
 ## Settings and files
 
@@ -70,21 +75,18 @@ Do not treat exhaustion as an infrastructure failure or continue live work
 through other agents while approval is pending. In a non-interactive run,
 deliver the last proved sources, or the best draft marked unproved, and report
 `exhausted`. For verification session handoffs, follow
-[using-kit](../using-kit/SKILL.md#verdicts-and-routing).
+[using-kit](../using-kit/SKILL.md#choose-the-work-that-advances-the-target).
 
 ## Task timeouts
 
-Use the timeout shown by `prover-client config` for run, validate and prove
-commands, including audit tasks. It limits each backend task, including
-compilation and execution. Command help describes cancellation behavior.
+Prover owns task execution limits; the CLI neither sends a timeout override
+nor imposes a local task or queue-wait deadline. `request_timeout_seconds`
+only limits individual HTTP requests. Ctrl-C requests cancellation of this
+command's task; inspect the reported confirmation before assuming it stopped.
 
-If a proof reaches the time limit before finishing, you may increase
-`task_timeout_seconds` in `config.toml` and retry. Do not change it because a
-completed task returned `notProved`. A timeout alone does not establish that
-the claim is false or the prover is stuck. Inspect the saved result before
-retrying; for proof diagnostics, follow
+A server timeout does not establish that the claim is false or the prover
+is stuck. Inspect the retained result and diagnostics before retrying; follow
 [proving-spec](../proving-spec/SKILL.md#proof-progress).
-
-Depth-bounded diagnostics use the same configured timeout. If an overall run
-has a deadline, allow time for delivery and lower the configured timeout
-before submission when necessary.
+Depth-bounded diagnostics remain subject to server execution limits. If the
+overall task has a deadline, allow time for cancellation and delivery rather
+than changing client timeout settings.

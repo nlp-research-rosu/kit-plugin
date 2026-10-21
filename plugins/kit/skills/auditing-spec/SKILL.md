@@ -1,6 +1,6 @@
 ---
 name: auditing-spec
-description: 'Use when dispatched to audit a drafted K spec that another agent wrote — judging claim adequacy against the source contract and summary faithfulness (spec.k, VERIFICATION-SUMMARIES, SCOPE.md) before any proving starts.'
+description: 'Review K claims and summaries for adequacy against the original program contract.'
 ---
 
 ## Stance
@@ -16,9 +16,9 @@ The theorem's meaning is the claims plus the summary definitions they
 reference: `?R ==Int sumTo(N0)` means nothing until `sumTo`'s
 equations say what it denotes. Audit `spec.k`, the
 `VERIFICATION-SUMMARIES` module of `verification.k`, and `SCOPE.md` as
-one unit against the original contract. Catching an inadequate domain
-or an unfaithful summary here is the cheapest rollback in the
-pipeline; after proving it costs the whole proof effort.
+one unit against the original contract. Review can be integrated with
+construction or performed as a separate audit. Catching an inadequate
+domain or an unfaithful summary early avoids wasted proof effort.
 
 ## Adequacy
 
@@ -64,15 +64,18 @@ For every function in `VERIFICATION-SUMMARIES`:
 
 ## Mechanical checks
 
-Use the KIT client's `validate` command with the construction session ID,
+When parsing or module structure needs checking, use the KIT client's
+`validate` command with the construction session ID,
 `verification.k`, and `spec.k`
 ([running-k.md](../shared/running-k.md)). Prover prepares the necessary
 semantics definition inside that validation task. Parser or module errors are
-findings now, not surprises during proving. Confirm concrete program identifiers
+findings now, not surprises during proving. Matching successful proof evidence
+already establishes that the submitted structure was accepted; avoid duplicate
+validation. Confirm concrete program identifiers
 parse as identifiers, not K variables
 ([k-syntax.md](../shared/k-syntax.md#grammar)).
 Check the labels and claim reuse attributes against
-[writing-spec](../writing-spec/SKILL.md#the-two-claims-in-speck): every
+[writing-spec](../writing-spec/SKILL.md#claim-structure-and-reuse): every
 self-applying invariant needs `[circularity]`, and every cross-claim use needs
 `[depends(...)]` naming an existing label.
 
@@ -94,7 +97,9 @@ instrument error. Do not substitute an unchecked proof or audit.
 
 ## Verdict artifact
 
-Write `audits/spec-audit-<n>.md` (`<n>` = attempt number): artifacts
+For integrated review, record consequential findings in `SCOPE.md` and the
+final report. For a separate audit, write
+`audits/spec-audit-<n>.md` (`<n>` = review number): artifacts
 examined, every command with exit status, each finding with its
 witness, ending with exactly:
 
@@ -114,5 +119,5 @@ instruments failed — never evidence against the spec.
 - Inputs: paths to `spec.k`, `verification.k`, `SCOPE.md`,
   the session ID,
   the target program(s), and the original contract.
-- Produces: `audits/spec-audit-<n>.md`.
-- Record the final verdict block, verbatim.
+- Produces: scope findings, or `audits/spec-audit-<n>.md` for a separate audit.
+- Record the final verdict block for a separate audit.

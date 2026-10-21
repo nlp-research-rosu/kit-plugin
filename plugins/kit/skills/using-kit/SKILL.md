@@ -1,168 +1,104 @@
 ---
 name: using-kit
-description: 'Use KIT to formally verify programs, write specifications and proofs, and audit results. Orchestrates the construction-and-audit pipeline and routes one-off verification questions to the owning skill.'
+description: 'Use KIT to verify a program with K and Prover, or choose the relevant verification skill.'
 ---
 
 ## What this kit proves
 
-This kit proves **partial correctness**: if a program terminates and
-its precondition holds, then its postcondition holds at termination.
-The live proof workflow covers PyK APR for the `evm`, `python-3-14-6` and
-`imp` semantics IDs. Prover may advertise other IDs, but KIT does not guide
-live proofs for them.
+KIT proves **partial correctness**: if a program terminates and its
+precondition holds, its postcondition holds at termination. Termination
+requires a separate argument.
 
-Prover establishes reachability claims by symbolic execution. For a
-loop, an invariant claim acts coinductively as a **circularity**: when
-execution returns to a matching symbolic loop-head configuration, the
-prover may apply that claim instead of unrolling the loop again.
+Establish the requested property over the agreed scope using the selected
+semantics. Choose a proof strategy suited to the target, inspect the
+resulting evidence, and address gaps within the available budget. Report
+what is proved, what depends on assumptions, and what remains unresolved.
 
-Keep three activities distinct:
+## Start live verification
 
-- **Verification** — Prover reports `proved` with tool exit 0 and the
-  backend's claim evidence under the supplied theory.
-- **Soundness audit** — proof extensions genuinely describe the
-  program and do not introduce execution-bypassing reasoning.
-- **Validation** — theorem scope, non-vacuity, trust, and independent
-  evidence support the intended property.
+Live verification is the default. Use the global Prover client through
+[running-k.md](../shared/running-k.md#shell-setup). Before live work, check for CLI updates.
+Use [kit-onboarding](../kit-onboarding/SKILL.md) when setup or authentication
+is incomplete; use command help for invocation details.
 
-## Choose the execution path first
+Discover available semantics with `prover-client semantics`, select an ID
+matching the target, and inspect its pinned sources and backend capabilities.
+Start one bounded session before construction and reuse its
+session ID for concrete runs, validation, proofs, and repairs. Follow the
+[semantics selection contract](../shared/running-k.md#semantics-descriptor).
+Live KIT uses bundled semantics, not user-authored semantics files. If no
+supported ID matches, report the model gap rather than inventing a live
+semantics or silently narrowing the target.
 
-Live verification is the default. Load and run
-[running-k.md — Shell setup](../shared/running-k.md#shell-setup),
-to locate the global CLI and proceed with the requested operation.
-Use only that CLI for live work. If setup is incomplete, use
-[kit-onboarding](../kit-onboarding/SKILL.md) before deciding Prover is unavailable.
-Before live work, check for CLI updates.
-If Prover remains unavailable, stop as BLOCKED
-and report the exact error.
+## Choose the work that advances the target
 
-## Run the pipeline
+Load specialist skills and references as needed; they are not mandatory
+stages. Specification, construction, and review can be interleaved. Keep
+the scope and proof artifacts current as the approach changes.
 
-Run construction, spec review, and repairs yourself using the stage skills.
-Delegate only the final `validating-proof` audit to a fresh subagent when
-available and permitted; otherwise use the inline fallback below.
+Prefer bottom-up verification: start with the leaf dependencies needed by
+the requested target, then build toward higher-level components and their
+interactions. Dependency order matters more than function size. The target
+may be a function, smart contract, program, or whole codebase.
 
-At kickoff, settle the automation level: how hard to push before
-stopping (rerolls, alternative attack angles at each defect). If the
-initiating prompt states a level, use it. Otherwise ask the human.
-If nobody can answer — a non-interactive run — assume maximum
-automation and never wait on a reply.
+Reuse helper claims only with the dependency and scope connections described
+in [writing-spec](../writing-spec/SKILL.md#claim-structure-and-reuse).
+Track remaining obligations in `SCOPE.md`; proving helpers or isolated
+function bodies does not establish their callers or the complete target.
 
-## The pipeline
+Continue through proof construction, evidence review, and repairs until the
+requested scope is established or a concrete blocker or resource limit
+prevents further work. Ask only when an unresolved scope, resource, or
+authorization decision materially affects the work. For attempt limits,
+follow [kit-help](../kit-help/SKILL.md#attempt-limits); do not start another
+session to bypass an exhausted budget. Approval to raise a limit resumes
+the existing session. Other new user feedback that re-enters verification
+starts a fresh session; explanation-only questions create none.
 
-```text
-select bundled semantics -> writing-spec -> auditing-spec
-                         -> proving-spec -> validating-proof -> PROOF.md
-```
+## Review evidence and report
 
-| Stage | Skill | Artifacts |
-|---|---|---|
-| Select the language | `using-kit` | Session ID with one pinned revision |
-| State the theorem | `writing-spec` | `spec.k`, `VERIFICATION-SUMMARIES`, `SCOPE.md` |
-| Audit the theorem | `auditing-spec` | `audits/spec-audit-<n>.md` |
-| Close the proof | `proving-spec` | `VERIFICATION` extensions, `prove.sh`, passing proof evidence |
-| Audit the proof | `validating-proof` | `audits/proof-audit-<n>.md`, `PROOF.md` |
+Same-agent evidence review is the default. Use
+[validating-proof](../validating-proof/SKILL.md) to check the actual proof
+artifacts and results against the original task, not just the construction
+narrative. The [soundness contract](../shared/proof-extension-soundness.md)
+owns the correctness requirements and status meanings. Its gates cover
+[soundness](../shared/gate-a-soundness.md),
+[adequacy](../shared/gate-b-adequacy.md), and
+[evidence](../shared/gate-c-evidence.md).
 
-Before construction, use the supplied semantics ID or select a matching ID from
-`prover-client semantics`. Confirm it is one of the PyK APR IDs above. Start the
-construction session and read its returned sources with the agent harness.
-Follow [running-k.md](../shared/running-k.md#semantics-descriptor) for the shared
-selection contract; command help owns usage details.
-If no PyK APR ID matches, stop as BLOCKED. Live Kit never asks the user for
-semantics files and never runs `writing-semantics` or `auditing-semantics`.
+Request an independent audit when the user asks for it or the uncertainty
+warrants a separate reviewer and the harness permits delegation. Give that
+reviewer the original task and frozen artifact paths, without inherited
+construction reasoning. Record `same-agent review` or `independent review`
+accurately. Independent review and replay are distinct assurance measures.
 
-Dispatch the final audit without inherited conversation or construction
-reasoning. Keep the candidate unchanged during the audit. Template:
+Follow [review assurance](../shared/proof-extension-soundness.md#review-assurance)
+for evidence reuse, scoped replay, and recording the checks performed or
+omitted. A separate audit report is useful for a requested audit or handoff;
+ordinary review can be recorded directly in `PROOF.md` without duplicate stage
+reports.
 
-> You are the validating-proof subagent of a K verification pipeline. Read
-> <skill path> and follow it exactly, including its Dispatch
-> contract. Your inputs are exactly these paths: <paths>. Produce the
-> artifacts your skill names, then report back in the format its
-> Dispatch contract states. Do not repair the candidate:
-> the on-disk artifacts are your only evidence — never the
-> constructor's report.
+Deliver the exact proved artifacts, `SCOPE.md`, reproducible commands in
+`prove.sh`, and `PROOF.md` with the status, session IDs, evidence paths,
+assumptions, and remaining obligations. Claim completion only for the
+requested scope actually established. A narrower proof is partial progress.
 
-## Verdicts and routing
+## When live verification is unavailable
 
-Every audit ends its review artifact with the block:
+If Prover remains unavailable, stop as BLOCKED and report the exact
+error and unresolved obligations. Do not claim a successful proof.
 
-```text
-VERDICT: PASS | FAIL | BLOCKED
-TARGET: <stage>       (FAIL only)
-REASON: <one sentence>
-```
+## Find the relevant guidance
 
-- **PASS** — continue to the next stage. A proof-audit PASS produces
-  `PROOF.md`; if its status leaves the requested contract unmet, repair the
-  reported gap within the remaining budget and repeat the affected checks.
-- **FAIL** — the auditor proposes the earliest defective stage in
-  TARGET. Review the evidence in the audit artifact; the routing
-  decision is yours. Repair at the chosen stage using the audit
-  artifact, then re-run every downstream stage and
-  audit — an approved artifact built on a redone predecessor is
-  approved no longer.
-- **BLOCKED** — the auditor's instruments failed. That is an
-  infrastructure problem, never evidence against the artifact: repair
-  the environment and repeat the same audit; treat persistent
-  BLOCKED as a hard-blocker candidate.
-
-Start one bounded session before construction and reuse its ID for concrete
-runs, validation, proofs, and every repair attempt. For an exhausted limit,
-follow [kit-help — Attempt limits](../kit-help/SKILL.md#attempt-limits).
-The final proof audit uses its own clean-room workspace and session for
-replay and negative probes, never for construction repairs or extra attempts.
-When handing control back to the user, retain session IDs and evidence paths
-in the report. Approval to raise a limit resumes the existing session.
-Other new user feedback that
-re-enters verification starts a fresh session with full budgets, even for the
-same program; explanation-only questions create none. Returning from an audit
-to construction is not a user handoff and does not reset construction budgets.
-Rollbacks between pipeline stages still follow the
-[soundness contract](../shared/proof-extension-soundness.md).
-
-## Inline fallback
-
-If subagent dispatch is unavailable or denied, run the same stage
-contracts inline and sequentially. The audit rules do not relax:
-write each stage's report to disk, then audit strictly from the
-on-disk artifacts rather than relying on construction reasoning. Use this
-fallback also when the harness cannot provide a fresh subagent context.
-Record `same-agent review` in the audit and `PROOF.md` when using the fallback;
-do not call it independent review. Fresh replay and negative probes remain
-required in live mode.
-
-## Minimum audit
-
-A `proved` result is not the end of the run. When time or budget cannot
-cover the audits, run at least these checks yourself before delivering, and
-record them in `PROOF.md` as `minimum audit`:
-
-- Restate the precondition and postcondition in plain language and compare
-  them with the contract, clause by clause.
-- Every `requires` conjunct that excludes contract inputs has its
-  [witness](../shared/gate-b-adequacy.md#b1-input-domain-alignment).
-- The [concrete adequacy check](../shared/deriving-invariants.md#concrete-adequacy-check)
-  passed on the delivered claims.
-- The delivered files are the latest proved snapshot.
-
-## Router: one-off requests
-
-For a question that is not a full pipeline run, route directly:
-
-| Request | Open |
+| Need | Open |
 |---|---|
 | Install or connect KIT | [kit-onboarding](../kit-onboarding/SKILL.md) |
-| KIT settings, CLI usage or resource limits | [kit-help](../kit-help/SKILL.md) |
-| Prepare a candidate semantics for a future Prover release | `writing-semantics` |
-| State a theorem, derive an invariant or summary | `writing-spec`, [deriving-invariants.md](../shared/deriving-invariants.md) |
-| Prove a spec's claims, or make a stuck proof pass | `proving-spec` |
-| Judge a passing proof's honesty | `validating-proof` |
-| Read a docstring-style contract precisely | [reading-the-contract.md](../shared/reading-the-contract.md) |
-| K syntax, claims, build commands | [k-syntax.md](../shared/k-syntax.md), [k-claims.md](../shared/k-claims.md), [running-k.md](../shared/running-k.md) |
-
-## Shared references
-
-- [Proof-extension soundness contract](../shared/proof-extension-soundness.md)
-  — the constitution: taxonomy, gates, statuses, repair doctrine.
-- Gate obligations: [A](../shared/gate-a-soundness.md),
-  [B](../shared/gate-b-adequacy.md), [C](../shared/gate-c-evidence.md).
+| CLI usage, settings, or resource limits | [kit-help](../kit-help/SKILL.md) |
+| State a theorem or revise its scope | [writing-spec](../writing-spec/SKILL.md) |
+| Review claim adequacy or summary meaning | [auditing-spec](../auditing-spec/SKILL.md) |
+| Construct a proof or diagnose a stuck claim | [proving-spec](../proving-spec/SKILL.md) |
+| Review proof soundness and evidence | [validating-proof](../validating-proof/SKILL.md) |
+| Derive an invariant | [deriving-invariants.md](../shared/deriving-invariants.md) |
+| Interpret a natural-language contract | [reading-the-contract.md](../shared/reading-the-contract.md) |
+| K syntax, claims, or live commands | [k-syntax.md](../shared/k-syntax.md), [k-claims.md](../shared/k-claims.md), [running-k.md](../shared/running-k.md) |
+| Prepare or audit semantics for a future Prover release | [writing-semantics](../writing-semantics/SKILL.md), [auditing-semantics](../auditing-semantics/SKILL.md) |
