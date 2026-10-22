@@ -1,5 +1,7 @@
 # KIT plugin
 
+> **Moved.** After Intent Check v1.0.0 this repository is archived. KIT is now the `prove` mode of the Intent Check plugin: skills and the CLI (renamed `intent-check`) live in [nlp-research-rosu/intent-check](https://github.com/nlp-research-rosu/intent-check), and checks and DeepScan run on [nlp-research-rosu/prover](https://github.com/nlp-research-rosu/prover).
+
 The KIT plugin bundles verification skills and the Prover Client CLI.
 Prover Client connects to Prover, the remote server.
 
